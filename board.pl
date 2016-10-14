@@ -1,65 +1,92 @@
 
 tabuleiro( [
-            ['x','x','x',' ',' ',' ',' ','#'],
-            ['x','x',' ',' ',' ',' ',' ','#'],
+            ['!','!','x',' ',' ',' ',' ','#'],
+            ['!','x',' ',' ',' ',' ',' ','#'],
             ['x',' ',' ',' ',' ',' ',' ','#'],
             [' ',' ',' ',' ',' ',' ',' ','#'],
             ['x',' ',' ',' ',' ',' ',' ','#'],
-            ['x','x',' ',' ',' ',' ',' ','#'],
-            ['x','x','x',' ',' ',' ',' ','#']
+            ['!','x',' ',' ',' ',' ',' ','#'],
+            ['!','!','x',' ',' ',' ',' ','#']
              ]
           ).
 
 
-giveSpace(0) :- write(' ').
-giveSpace(1) :- write('  ').
-giveSpace(2) :- write('   ').
+giveSpace(N) :-
+ (N =:= 0; N =:= 6),
+ write(' ').
+
+giveSpace(N) :-
+ (N =:= 1; N =:= 5),
+write('  ').
+
+giveSpace(N) :-
+ (N =:= 2; N =:= 4),
+ write('   ').
+
 giveSpace(3) :- write('    ').
-
-
-displayA('#'):- write('').
-displayA('x'):- write('    ').
-displayA(' '):- write('  /\\ ').
-
-
-displayB('#'):- write('').
-displayB('x'):- write('    ').
-displayB(' '):- write(' /  \\').
-
-
-displayC('#'):- write('|').
-displayC('x'):- write('    ').
-displayC(' '):- write('|    ').
+giveSpace(7) :- write('             ').
+giveSpace(8) :- write('               ').
 
 
 
-displayLineA([X | Xs]) :- displayA(X) , displayLineA(Xs).
-displayLineA([]):- nl.
+displayA('#', _):- write('').
+displayA('x', N):- N > 3, write('  \\ ').
+displayA(X, _):-(X = 'x'; X = '!'), write('    ').
+displayA(' ', _):- write('  /\\ ').
 
-displayLineB([X | Xs]) :- displayB(X), displayLineB(Xs).
-displayLineB([]):- nl.
+displayB('#', _):- write('').
+displayB('x', N):-  N > 3, write('   \\').
+displayB(X, _):-(X = 'x'; X = '!'), write('    ').
+displayB(' ', _):- write(' /  \\').
 
-displayLineC([X | Xs]) :- displayC(X), displayLineC(Xs).
-displayLineC([]):- nl.
+displayC('#', _):- write('|').
+displayC(X, _):-(X = 'x'; X = '!'), write('    ').
+displayC(' ',_):- write('|    ').
+
+displayEnd1(0):-nl , giveSpace(8), displayEnd2(4).
+displayEnd1(Counter) :-
+      Counter > 0,
+      Counter1 is Counter - 1,
+      write('\\   /'),
+      displayEnd1(Counter1).
+
+
+displayEnd2(0) :- nl.
+displayEnd2(Counter) :-
+      Counter > 0,
+      Counter1 is Counter - 1,
+      write('\\/   '),
+      displayEnd2(Counter1).
+
+displayLineA([X | Xs], Value) :- displayA(X, Value) , displayLineA(Xs, Value).
+displayLineA([], N):- N > 3, write(' /'), nl.
+displayLineA([], _T):- nl.
+
+displayLineB([X | Xs], Value) :- displayB(X,Value), displayLineB(Xs,Value).
+displayLineB([] ,N ):- N > 3, write('/'), nl.
+displayLineB([], _T ):- nl.
+
+displayLineC([X | Xs], Value) :- displayC(X, Value), displayLineC(Xs, Value).
+displayLineC([], _T ):- nl.
 
 
 displayLine(L, Value) :-
 	giveSpace(Value),
-	displayLineA(L),
+	displayLineA(L, Value),
 	giveSpace(Value),
-	displayLineB(L),
+	displayLineB(L, Value),
 	giveSpace(Value),
-	displayLineC(L).
+	displayLineC(L, Value).
 
 displayLine([], _T):- nl.
 
 
 displayBoard([H | T], Count) :-
-    displayLine(H,Count),
+    displayLine(H,Count ),
     Count1 is Count + 1,
     displayBoard(T ,Count1).
 
-displayBoard([], _T):- nl.
+displayBoard([], Count):- giveSpace(Count), displayEnd1(4).
 
 
 menu(_X) :-
