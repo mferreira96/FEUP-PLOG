@@ -1,20 +1,20 @@
 
 tabuleiro( [
-            ['1','x','x','x',' ',' ',' ',' ','#'],
-            ['2','x','x',' ',' ',' ',' ',' ','#'],
-            ['3','x',' ',' ',' ',' ',' ',' ','#'],
-            ['4',' ',' ',' ',' ',' ',' ',' ','#'],
-            ['3','x',' ',' ',' ',' ',' ',' ','#'],
-            ['2','x','x',' ',' ',' ',' ',' ','#'],
-            ['1','x','x','x',' ',' ',' ',' ','#']
+            ['x','x','x',' ',' ',' ',' ','#'],
+            ['x','x',' ',' ',' ',' ',' ','#'],
+            ['x',' ',' ',' ',' ',' ',' ','#'],
+            [' ',' ',' ',' ',' ',' ',' ','#'],
+            ['x',' ',' ',' ',' ',' ',' ','#'],
+            ['x','x',' ',' ',' ',' ',' ','#'],
+            ['x','x','x',' ',' ',' ',' ','#']
              ]
           ).
 
 
-giveSpace('1') :- write(' ').
-giveSpace('2') :- write('  ').
-giveSpace('3') :- write('   ').
-giveSpace('4') :- write('    ').
+giveSpace(0) :- write(' ').
+giveSpace(1) :- write('  ').
+giveSpace(2) :- write('   ').
+giveSpace(3) :- write('    ').
 
 
 displayA('#'):- write('').
@@ -43,19 +43,25 @@ displayLineC([X | Xs]) :- displayC(X), displayLineC(Xs).
 displayLineC([]):- nl.
 
 
-displayLine([E1|Es]) :-
-	giveSpace(E1),
-	displayLineA(Es),
-	giveSpace(E1),
-	displayLineB(Es),
-	giveSpace(E1),
-	displayLineC(Es).
+displayLine(L, Value) :-
+	giveSpace(Value),
+	displayLineA(L),
+	giveSpace(Value),
+	displayLineB(L),
+	giveSpace(Value),
+	displayLineC(L).
 
-displayLine([]):- nl.
+displayLine([], _T):- nl.
 
 
-displayBoard([H | T]) :-
-    displayLine(H),
-    displayBoard(T).
+displayBoard([H | T], Count) :-
+    displayLine(H,Count),
+    Count1 is Count + 1,
+    displayBoard(T ,Count1).
 
-displayBoard([]):- nl.
+displayBoard([], _T):- nl.
+
+
+menu(_X) :-
+  tabuleiro(_X),
+  displayBoard(_X, 0).
