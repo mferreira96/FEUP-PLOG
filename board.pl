@@ -2,14 +2,17 @@
 tabuleiro( [
             ['!','!','x',' ',' ',' ',' ','#'],
             ['!','x',' ',' ',' ',' ',' ','#'],
-            ['x',' ',' ',' ',' ',' ',' ','#'],
+            ['x',' ',' ',[2,'x',1],' ',' ',' ','#'],
             [' ',' ',' ',' ',' ',' ',' ','#'],
             ['x',' ',' ',' ',' ',' ',' ','#'],
-            ['!','x',' ',' ',' ',' ',' ','#'],
+            ['!','x',' ',' ',' ',[3, 'y',1],' ','#'],
             ['!','!','x',' ',' ',' ',' ','#']
              ]
           ).
 
+
+list([_X|_Xs]).
+list([]).
 
 giveSpace(N) :-
  (N =:= 0; N =:= 6),
@@ -28,20 +31,40 @@ giveSpace(7) :- write('             ').
 giveSpace(8) :- write('               ').
 
 
+displayMember([List|Rest]) :-
+    write(List),
+    displayMember(Rest).
+
+displayMember([]).
+
 
 displayA('#', _):- write('').
 displayA('x', N):- N > 3, write('  \\ ').
 displayA(X, _):-(X = 'x'; X = '!'), write('    ').
-displayA(' ', _):- write('  /\\ ').
+displayA(X, _):- (X = ' '; list(X)) , write('  /\\ ').
+
 
 displayB('#', _):- write('').
 displayB('x', N):-  N > 3, write('   \\').
 displayB(X, _):-(X = 'x'; X = '!'), write('    ').
-displayB(' ', _):- write(' /  \\').
+displayB(X, _):- (X = ' '; list(X)), write(' /  \\').
+
 
 displayC('#', _):- write('|').
 displayC(X, _):-(X = 'x'; X = '!'), write('    ').
 displayC(' ',_):- write('|    ').
+displayC(List, _):- write('| '), displayMember(List), write('').
+
+displayLineA([X | Xs], Value) :- displayA(X, Value) , displayLineA(Xs, Value).
+displayLineA([], N):- N > 3, write(' /'), nl.
+displayLineA([], _T):- nl.
+
+displayLineB([X | Xs], Value) :- displayB(X,Value), displayLineB(Xs,Value).
+displayLineB([] ,N ):- N > 3, write('/'), nl.
+displayLineB([], _T ):- nl.
+
+displayLineC([X | Xs], Value) :- displayC(X, Value), displayLineC(Xs, Value).
+displayLineC([], _T ):- nl.
 
 displayEnd1(0):-nl , giveSpace(8), displayEnd2(4).
 displayEnd1(Counter) :-
@@ -57,18 +80,6 @@ displayEnd2(Counter) :-
       Counter1 is Counter - 1,
       write('\\/   '),
       displayEnd2(Counter1).
-
-displayLineA([X | Xs], Value) :- displayA(X, Value) , displayLineA(Xs, Value).
-displayLineA([], N):- N > 3, write(' /'), nl.
-displayLineA([], _T):- nl.
-
-displayLineB([X | Xs], Value) :- displayB(X,Value), displayLineB(Xs,Value).
-displayLineB([] ,N ):- N > 3, write('/'), nl.
-displayLineB([], _T ):- nl.
-
-displayLineC([X | Xs], Value) :- displayC(X, Value), displayLineC(Xs, Value).
-displayLineC([], _T ):- nl.
-
 
 displayLine(L, Value) :-
 	giveSpace(Value),
