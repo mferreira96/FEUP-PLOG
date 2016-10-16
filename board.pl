@@ -1,12 +1,12 @@
 
 tabuleiro( [
-            ['!','!','x',' ',' ',' ',' ','#'],
-            ['!','x',' ',' ',' ',' ',' ','#'],
-            ['x',' ',' ',[2,'p',1],' ',' ',' ','#'],
-            [' ',' ',' ',' ',' ',' ',' ','#'],
-            ['x',' ',' ',' ',' ',' ',' ','#'],
-            ['!','x',' ',' ',' ',[3, 'b',1],' ','#'],
-            ['!','!','x',' ',' ',' ',' ','#']
+            ['!','!','x',' ',' ',' ',' '],
+            ['!','x',' ',' ',' ',' ',' '],
+            ['x',' ',' ',[2,'p',1],' ',' ',' '],
+            [' ',' ',' ',' ',' ',' ',' '],
+            ['x',' ',' ',' ',' ',' ',' '],
+            ['!','x',' ',' ',' ',[3, 'b',1],' '],
+            ['!','!','x',' ',' ',' ',' ']
              ]
           ).
 
@@ -37,20 +37,14 @@ displayMember([List|Rest]) :-
 
 displayMember([]).
 
-
-displayA('#', _):- write('').
 displayA('x', N):- N > 3, write('  \\ ').
 displayA(X, _):-(X = 'x'; X = '!'), write('    ').
 displayA(X, _):- (X = ' '; list(X)) , write('  /\\ ').
 
-
-displayB('#', _):- write('').
 displayB('x', N):-  N > 3, write('   \\').
 displayB(X, _):-(X = 'x'; X = '!'), write('    ').
 displayB(X, _):- (X = ' '; list(X)), write(' /  \\').
 
-
-displayC('#', _):- write('|').
 displayC(X, _):-(X = 'x'; X = '!'), write('    ').
 displayC(' ',_):- write('|    ').
 displayC(List, _):- write('| '), displayMember(List), write('').
@@ -64,7 +58,7 @@ displayLineB([] ,N ):- N > 3, write('/'), nl.
 displayLineB([], _T ):- nl.
 
 displayLineC([X | Xs], Value) :- displayC(X, Value), displayLineC(Xs, Value).
-displayLineC([], _T ):- nl.
+displayLineC([], _T ):- write('|'), nl.
 
 displayEnd1(0):-nl , giveSpace(8), displayEnd2(4).
 displayEnd1(Counter) :-
