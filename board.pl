@@ -105,6 +105,6 @@ displayBoard([H | T], Count) :-
 displayBoard([], Count):- giveSpace(Count), displayEnd1(4).
 
 
-menu(_X) :-
+menu:-
   tabuleiro(_X),
   displayBoard(_X, 0).

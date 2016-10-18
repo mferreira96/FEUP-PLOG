@@ -9,3 +9,7 @@ getAdaptoid(Board, Player, Coords, Adaptoid).
 removeAdaptoid(Board, Player, Coords, NewBoard).
 
 putAdaptoid(Board, Player, Coords, NewBoard).
+
+editCell(Board, Remove, Put, Coords, NewBoard).
+
+updateAdaptoid(Adaptoid, NewAdaptoid, pincer, leg).
