@@ -30,3 +30,8 @@ findElement(PosXY, [Head|Rest], Result ,Counter):-
 getAdaptoid(Board, Player, CoordX, CoordY, Adaptoid):-
     findElement(CoordX, Board, List, 1),
     findElement(CoordY, List, Adaptoid, 1).
+
+%%% Adaptoid -> C (color) - L (Leg) - P (Pincer)
+updateAdaptoid(C - L - P, C - L1 - P1, Pincer, Leg):-
+      L1 is L + Leg,
+      P1 is P + Pincer.
