@@ -1,23 +1,23 @@
 
-tabuleiro1( [
-            ['!','!','x',' ',' ',' ',' '],
-            ['!','x',' ',' ',' ',' ',' '],
-            ['x',' ',' ',' ',' ',' ',' '],
-            [' ',[0 , 'p', 0],' ',' ',' ',[0 ,'b',0],' '],
-            ['x',' ',' ',' ',' ',' ',' '],
-            ['!','x',' ',' ',' ',' ',' '],
-            ['!','!','x',' ',' ',' ',' ']
+tabuleiro( [
+            [!,!,x,vazio,vazio,vazio,vazio],
+            [!,x,vazio,vazio,vazio,vazio,vazio],
+            [x,vazio,vazio,vazio,vazio,vazio,vazio],
+            [vazio, p - 0 - 0,vazio,vazio,vazio,b - 0 - 0,vazio],
+            [x,vazio,vazio,vazio,vazio,vazio,vazio],
+            [!,x,vazio,vazio,vazio,vazio,vazio],
+            [!,!,x,vazio,vazio,vazio,vazio]
              ]
           ).
 
-tabuleiro( [
-            ['!','!','x',' ',' ',' ',' '],
-            ['!','x',' ',' ',' ',' ',' '],
-            ['x',' ',' ',[2,'p',1],' ',' ',' '],
-            [' ',' ',' ',' ',' ',' ',' '],
-            ['x',' ',' ',' ',' ',' ',' '],
-            ['!','x',' ',' ',' ',[3, 'b',1],' '],
-            ['!','!','x',' ',' ',' ',' ']
+tabuleiro1( [
+            [!,!,x,vazio,vazio,vazio,vazio],
+            [!,x,vazio,vazio,vazio,vazio,vazio],
+            [x,vazio,vazio,p - 2 - 1,vazio,vazio,vazio],
+            [vazio,vazio,vazio,vazio,vazio,vazio,vazio],
+            [x,vazio,vazio,vazio,vazio,vazio,vazio],
+            [!,x,vazio,vazio,vazio,b - 3 - 1 ,vazio],
+            [!,!,x,vazio,vazio,vazio,vazio]
              ]
           ).
 
@@ -48,17 +48,17 @@ displayMember([List|Rest]) :-
 
 displayMember([]).
 
-displayA('x', N):- N > 3, write('  \\ ').
-displayA(X, _):-(X = 'x'; X = '!'), write('    ').
-displayA(X, _):- (X = ' '; list(X)) , write('  /\\ ').
+displayA(x, N):- N > 3, write('  \\ ').
+displayA(X, _):-(X = x; X = !), write('    ').
+displayA(_, _):- write('  /\\ ').
 
-displayB('x', N):-  N > 3, write('   \\').
-displayB(X, _):-(X = 'x'; X = '!'), write('    ').
-displayB(X, _):- (X = ' '; list(X)), write(' /  \\').
+displayB(x, N):-  N > 3, write('   \\').
+displayB(X, _):-(X = x; X = !), write('    ').
+displayB(_, _):-  write(' /  \\').
 
-displayC(X, _):-(X = 'x'; X = '!'), write('    ').
-displayC(' ',_):- write('|    ').
-displayC(List, _):- write('| '), displayMember(List), write('').
+displayC(X, _):-(X = x; X = !), write('    ').
+displayC(vazio,_):- write('|    ').
+displayC(C - L - P, _):- write('| '), write(L),write(C),write(P), write('').
 
 displayLineA([X | Xs], Value) :- displayA(X, Value) , displayLineA(Xs, Value).
 displayLineA([], N):- N > 3, write(' /'), nl.

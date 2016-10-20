@@ -12,7 +12,7 @@ putAdaptoid(Board, Player, Coords, NewBoard).
 
 editCell(Board, Remove, Put, Coords, NewBoard).
 
-updateAdaptoid(Adaptoid, NewAdaptoid, pincer, leg).
+updateAdaptoid(Adaptoid, NewAdaptoid, Pincer, Leg).
 
 
 %%% listManipulation %%%
