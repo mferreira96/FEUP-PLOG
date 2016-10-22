@@ -1,8 +1,4 @@
 
-%%% addLeg(Board, Player, Coords, NewBoard).
-
-%%% addPincer(Board, Player, Coords, NewBoard).
-
 %%%%%%%%%%%%%%%%%%%%%%%%
 %%% listManipulation %%%
 %%%%%%%%%%%%%%%%%%%%%%%%
@@ -15,7 +11,7 @@ setMatrixElement(Row, Col, NewElement, [Head| Rest], [Head| RRest]):-
   Row1 is Row - 1,
   setMatrixElement(Row1, Col, NewElement, Rest, RRest).
 
-setListElemt(0, NewElem, [_|L], [Elem|L]).
+setListElemt(0, NewElem, [_|L], [NewElem|L]).
 setListElemt(Col, NewElem, [H|L], [H|R]):-
   Col > 0,
   Col1 is Col -1,
@@ -31,7 +27,6 @@ findElement(Pos, [Head|Rest], Result):-
   findElement(Pos1, Rest, Result).
 
 
-
 getAdaptoid(Board, Player, Row, Column, Adaptoid):-
     findElement(Row, Board, List),
     findElement(Column, List, Adaptoid).
@@ -42,11 +37,16 @@ getAdaptoid(Board, Player, Row, Column, Adaptoid):-
 
 
 %%% Adaptoid -> C (color) - L (Leg) - P (Pincer)
-updateAdaptoid(C - L - P, C - L1 - P1, Pincer, Leg):-
+updateBodyOfAdaptoid(C - L - P, C - L1 - P1, Pincer, Leg):-
       L1 is L + Leg,
       P1 is P + Pincer.
 
+updateAdaptoid(Board, Player, Row-Column,Pincer, Leg, NewBoard):-
+    getAdaptoid(Board, Player, Row, Column, C - L - P),
+    updateBodyOfAdaptoid(C - L - P, C - L1 - P1 ,Pincer , Leg),
+    setMatrixElement(Row, Column, C - L1 - P1, Board, NewBoard).
+
 moveAdaptoid(Board, Player, Row-Column, FinalRow-FinalColumn, NewBoard):-
     getAdaptoid(Board, Player, Row, Column, Adaptoid),
-    setMatrixElement(Row, Column, [vazio], Board, TempBoard),
+    setMatrixElement(Row, Column, vazio, Board, TempBoard),
     setMatrixElement(FinalRow, FinalColumn, Adaptoid, TempBoard, NewBoard).
