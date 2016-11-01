@@ -1,21 +1,17 @@
-readCommand(Line):-
-  get0(Ch),
-  readAll(Ch, Chars),
-  name(Line,Chars).
 
-readAll(13, []).
-readAll(10, [])
-readAll(Ch,[Ch,Chars]):-
-  get0(NewCh),
-  readAll(NewCh, Chars).
-
-
-name(Line, Chars):-
-  Line = Chars.
-
-askCoords:-
-  write("Write the position of the adaptoid:").
+% needed to be tested
+askCoord:-
+  write('Write the row of the adaptoid:'),
+  getInt(Row),
+  validateRow(Row),
+  write('Write the column of the adaptoid:'),
+  getInt(column),
+  validateColumn(Column),
+  \+empetyCell(Board, _ , Row-Column).
 
 
 askNextCoords:-
-  write("write the next position of adaptoid: ").
+  write('write the next position of adaptoid:').
+
+discardInput:-
+  get_code(_).

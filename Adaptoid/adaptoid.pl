@@ -1,9 +1,13 @@
+:- use_module(library(system)).
+:- use_module(library(lists)).
 :- include('board.pl').
 :- include('logic.pl').
+:- include('interface.pl').
 
-adaptoid:-
-  tabuleiro(_X),
-  toMove(_X, _).
+
+% adaptoid:-
+  % tabuleiro(_X),
+  % toMove(_X, _).
 
 
 
@@ -16,8 +20,8 @@ adaptoid:-
 
 toMove(Board, Player):-
   askCoords,
-  readCommand(R-C),
+  readCommand(R),
   askNextCoords,
-  readCommand(Row-Column),
+  readCommand(Row),
   validateMove(Board, Player, Row-Column),
   moveAdaptoid(Board, Player, R-C, Row-Column, NewBoard).

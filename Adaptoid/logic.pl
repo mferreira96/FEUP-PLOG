@@ -103,3 +103,25 @@ compareAdaptoids(C-L-P, C1-L1-P1, Winners):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%% Neighbours %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% is necessary test this functions
+
+neighbour(Board, Row, Column, DiffRow, DiffColumn, Res):-
+    TempRow is Row + DiffRow,
+    TempColumn is Column + DiffColumn,
+    validateCell(TempRow,TempColumn),
+    getElement(Board, _ , TempRow, TempColumn, Res).
+
+checkNeighbours(Board, Row, Column, Res):-
+  neighbour(Board, Row, Column,1 ,0, Res1),
+  neighbour(Board, Row, Column,1 ,1, Res2),
+  neighbour(Board, Row, Column,0 ,1, Res3),
+  neighbour(Board, Row, Column,-1, 0, Res4),
+  neighbour(Board, Row, Column,-1, -1, Res5),
+  neighbour(Board, Row, Column,0, -1, Res6),
+  somarRes([Res1, Res2, Res3, Res4, Res5, Res6],0 ,Res), !.
+
+  somarRes([],TRes, TRes).
+  somarRes([Head | R],TRes, Res):-
+    Head = 'vazio',
+    TempRes is TRes + 1,
+    somarRes(R, TempRes, Res).
