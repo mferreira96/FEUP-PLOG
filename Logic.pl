@@ -18,18 +18,10 @@ setListElemt(Col, NewElem, [H|L], [H|R]):-
   setListElemt(Col1, NewElem, L, R).
 
 
-findElement(0, [Head|Rest], Result):-
-    Result = Head.
-
-findElement(Pos, [Head|Rest], Result):-
-  Pos > 0,
-  Pos1 is Pos - 1,
-  findElement(Pos1, Rest, Result).
-
-
 getElement(Board, Player, Row, Column, Element):-
-    findElement(Row, Board, List),
-    findElement(Column, List, Element).
+    nth0(Row, Board, List),
+    nth0(Column, List, Element).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%% Update Adaptoid %%%%%%%%
@@ -80,8 +72,11 @@ validateCell(Row, Column):-
 
 validateMove(Board,Player, Row-Column):-
     validateCell(Row, Column),
-    getElement(Board, Player, Row, Column, Element),
-    Element = vazio.
+    empetyCell(Boar, Player, Row-Column).
+
+empetyCell(Board, Player, Row-Column):-
+  getElement(Board, _, Row, Column, Element),
+  Element = vazio.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -104,3 +99,7 @@ compareAdaptoids(C-L-P, C1-L1-P1, Winners):-
     P =:= P1,
     append([C-L-P], [], TempList),
     append([C1-L1-P1], TempList, Winners).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%% Neighbours %%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

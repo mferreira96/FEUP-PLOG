@@ -12,3 +12,10 @@ readAll(Ch,[Ch,Chars]):-
 
 name(Line, Chars):-
   Line = Chars.
+
+askCoords:-
+  write("Write the position of the adaptoid:").
+
+
+askNextCoords:-
+  write("write the next position of adaptoid: ").
