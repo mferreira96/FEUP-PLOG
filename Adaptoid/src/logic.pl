@@ -38,6 +38,9 @@ updateAdaptoid(Board, Player, Row-Column,Pincer, Leg, NewBoard):-
     updateBodyOfAdaptoid(C - L - P, C - L1 - P1 ,Pincer , Leg),
     setMatrixElement(Row, Column, C - L1 - P1, Board, NewBoard).
 
+getNumberOfExtremities(C-L-P, Number):-
+  Number is L + P.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%% Adaptoid moves %%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -103,25 +106,68 @@ compareAdaptoids(C-L-P, C1-L1-P1, Winners):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%% Neighbours %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% is necessary test this functions
+
+neighbourAux(Board, _ , TempRow-TempColumn, R):-
+  empetyCell(Board, _, TempRow - TempColumn),
+  R is 1.
+
+neighbourAux(Board, _ , TempRow-TempColumn, R):-
+  R is 0.
 
 neighbour(Board, Row, Column, DiffRow, DiffColumn, Res):-
     TempRow is Row + DiffRow,
     TempColumn is Column + DiffColumn,
     validateCell(TempRow,TempColumn),
-    getElement(Board, _ , TempRow, TempColumn, Res).
+    neighbourAux(Board, _ , TempRow-TempColumn, Res).
 
-checkNeighbours(Board, Row, Column, Res):-
+getEmpetyNeighbours(Board, Row, Column, Res):-
   neighbour(Board, Row, Column,1 ,0, Res1),
   neighbour(Board, Row, Column,1 ,1, Res2),
   neighbour(Board, Row, Column,0 ,1, Res3),
   neighbour(Board, Row, Column,-1, 0, Res4),
   neighbour(Board, Row, Column,-1, -1, Res5),
   neighbour(Board, Row, Column,0, -1, Res6),
-  somarRes([Res1, Res2, Res3, Res4, Res5, Res6],0 ,Res), !.
+  somarRes([Res1, Res2, Res3, Res4, Res5, Res6],0 ,Res).
 
-  somarRes([],TRes, TRes).
-  somarRes([Head | R],TRes, Res):-
-    Head = 'vazio',
-    TempRes is TRes + 1,
-    somarRes(R, TempRes, Res).
+somarRes([],TRes, TRes).
+somarRes([Head | R],TRes, Res):-
+  TempRes is Head + TRes,
+  somarRes(R, TempRes, Res).
+
+
+updateRowAndColumn(PR-PC, FR-FC):-
+    TemCol is PC + 1,
+    TempCol =:= 7,
+    FC is 0,
+    FR is PR + 1.
+
+updateRowAndColumn(PR-PC, FR-FC):-
+    FR =:= PR,
+    FC is PC +1.
+
+
+removeStarvingAdaptoids(Board,StartRow, StartCol, NewBoard):-
+  \+ empetyCell(Board, _ ,StartRow-StarCol ),
+  getEmpetyNeighbours(Board, StartRow, StartCol, Res),
+  EmpetyHome is Res,
+  getElement(Board, _, StartRow, StartCol, C - L - P),
+  getNumberOfExtremities(C-L-P, Number),
+  Number < EmpetyHome,
+  updateRowAndColumn( StartRow-StarCol, NewRow-NewCol),
+  removeStarvingAdaptoids(Board,StartRow, StartCol, NewBoard).
+
+removeStarvingAdaptoids(Board,StartRow, StartCol, NewBoard):-
+  \+ empetyCell(Board, _ ,StartRow-StarCol ),
+  getEmpetyNeighbours(Board, StartRow, StartCol, Res),
+  EmpetyHome is Res,
+  getElement(Board, _, StartRow, StartCol, C - L - P),
+  getNumberOfExtremities(C-L-P, NumberExtremities),
+  NumberExtremities > EmpetyHome,
+  removeAdaptoid(Board,_, StartRow-StartColumn, NewBoard),
+  updateRowAndColumn( StartRow-StarCol, NewRow-NewCol),
+  removeStarvingAdaptoids(NewBoard ,StartRow, StartCol, NewBoard).
+
+
+removeStarvingAdaptoids(Board,StartRow, StartCol, NewBoard):-
+  updateRowAndColumn( StartRow-StarCol, NewRow-NewCol),
+  removeStarvingAdaptoids(Board,StartRow, StartCol, NewBoard).
