@@ -16,3 +16,8 @@ teste2:-
   % displayBoard(_X,0),
   removeStarvingAdaptoids(_X, 0, 0, NewBoard),
   displayBoard(NewBoard, 0).
+
+createAdaptoid:-
+  tabuleiro1(_X),
+  createNewAdaptoid(_X, p,2-2, NewBoard),
+  displayBoard(NewBoard,0).

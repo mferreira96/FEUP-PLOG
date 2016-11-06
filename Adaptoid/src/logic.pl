@@ -182,10 +182,30 @@ removeStarvingAdaptoids(Board,StartRow, StartCol, NewBoard):-
 %%%%%%%% New adaptoid %%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-findAdaptoidOfSameColor(Board, R-C):-
-  %% descobrir uma adaptoid da mesma cor com casa livre
 
 
-CreateNewAdaptoid(Board, C, NewBoard):-
-  findAdaptoidOfSameColor(Board, R-C),
-  setMatrixElement(R, C, C-0-0,Board, NewBoard).
+neighbourRowColumn(PR-PC, FR-FC):-
+  FR is PR + 1, FC is PC.
+neighbourRowColumn(PR-PC, FR-FC):-
+  FR is PR + 1, FC is PC + 1.
+neighbourRowColumn(PR-PC, FR-FC):-
+  FR is PR , FC is PC + 1.
+neighbourRowColumn(PR-PC, FR-FC):-
+  FR is PR - 1, FC is PC.
+neighbourRowColumn(PR-PC, FR-FC):-
+  FR is PR - 1, FC is PC -1.
+neighbourRowColumn(PR-PC, FR-FC):-
+  FR is PR, FC is PC -1.
+
+
+neighbourIsSameColor(Board, Row-Column, Color):-
+  neighbourRowColumn(Row-Column, FinalRow-FinalColumn),
+  getElement(Board, _, FinalRow, FinalColumn, C-L-P),
+  Color = C.
+
+
+
+createNewAdaptoid(Board, Color,R-C, NewBoard):-
+  empetyCell(Board, _, R-C),!,
+  neighbourIsSameColor(Board, R-C, Color),
+  setMatrixElement(R, C, Color-0-0,Board, NewBoard).
