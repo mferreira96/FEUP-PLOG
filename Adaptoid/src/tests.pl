@@ -11,10 +11,10 @@ teste1(Res):-
 
 
 % Is necessary test this predicate
-teste2:-
+removeStarving:-
   tabuleiro1(_X),
   % displayBoard(_X,0),
-  removeStarvingAdaptoids(_X, 0, 0, NewBoard),
+  removeStarvingAdaptoids(_X,b, NewBoard),
   displayBoard(NewBoard, 0).
 
 createAdaptoid:-

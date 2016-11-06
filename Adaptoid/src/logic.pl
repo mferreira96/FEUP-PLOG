@@ -38,8 +38,10 @@ updateAdaptoid(Board, Player, Row-Column,Pincer, Leg, NewBoard):-
     updateBodyOfAdaptoid(C - L - P, C - L1 - P1 ,Pincer , Leg),
     setMatrixElement(Row, Column, C - L1 - P1, Board, NewBoard).
 
-getNumberOfExtremities(C-L-P, Number):-
+getNumberOfExtremities(Board, R-C, Number):-
+  getElement(Board, _, Row, Col,C-L-P),
   Number is L + P.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%% Adaptoid moves %%%%%%%%
@@ -107,82 +109,34 @@ compareAdaptoids(C-L-P, C1-L1-P1, Winners):-
 %%%%%%%% Neighbours %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-neighbourAux(Board, _ , TempRow-TempColumn, R):-
-  empetyCell(Board, _, TempRow - TempColumn),
-  R is 1.
-
-neighbourAux(Board, _ , TempRow-TempColumn, R):-
-  R is 0.
-
-neighbour(Board, Row, Column, DiffRow, DiffColumn, Res):-
-    TempRow is Row + DiffRow,
-    TempColumn is Column + DiffColumn,
-    validateCell(TempRow,TempColumn),
-    neighbourAux(Board, _ , TempRow-TempColumn, Res).
-
-getEmpetyNeighbours(Board, Row, Column, Res):-
-  neighbour(Board, Row, Column,1 ,0, Res1),
-  neighbour(Board, Row, Column,1 ,1, Res2),
-  neighbour(Board, Row, Column,0 ,1, Res3),
-  neighbour(Board, Row, Column,-1, 0, Res4),
-  neighbour(Board, Row, Column,-1, -1, Res5),
-  neighbour(Board, Row, Column,0, -1, Res6),
-  somarRes([Res1, Res2, Res3, Res4, Res5, Res6],0 ,Res).
-
-somarRes([],TRes, TRes).
-somarRes([Head | R],TRes, Res):-
-  TempRes is Head + TRes,
-  somarRes(R, TempRes, Res).
 
 
-updateRowAndColumn(PR-PC, FR-FC):-
-    TempCol is PC + 1,
-    TempCol =:= 7,
-    FC is 0,
-    FR is PR + 1.
-
-updateRowAndColumn(PR-PC, FR-FC):-
-    FR is  PR,
-    FC is PC + 1.
-
-% remove starving adaptoids
-% se o empetyCell falahr ele volta atras e tenta nova solução, entranco num cilco infinito
-
-removeStarvingAdaptoids(Board,StartRow, StartCol, NewBoard):-
-  \+ empetyCell(Board, _ ,StartRow-StartCol ),
-  getEmpetyNeighbours(Board, StartRow, StartCol, Res),
-  EmpetyHome is Res,
-  getElement(Board, _, StartRow, StartCol, C - L - P),
-  getNumberOfExtremities(C-L-P, Number),
-  format("element ~p : neighbours ~d : extremities ~d", [C-L-P, EmpetyHome, Number]),
-  Number < EmpetyHome,
-  updateRowAndColumn( StartRow-StartCol, NewRow-NewCol),
-  removeStarvingAdaptoids(Board,NewRow, NewCol, NewBoard).
-
-removeStarvingAdaptoids(Board,StartRow, StartCol, NewBoard):-
-  \+ empetyCell(Board, _ ,StartRow-StartCol ),
-  getEmpetyNeighbours(Board, StartRow, StartCol, Res),
-  EmpetyHome is Res,
-  getElement(Board, _, StartRow, StartCol, C - L - P),
-  getNumberOfExtremities(C-L-P, NumberExtremities),
-  format("element ~p : neighbours ~d : extremities ~d", [C-L-P, EmpetyHome, Number]),
-  NumberExtremities > EmpetyHome,
-  removeAdaptoid(Board,_, StartRow-StartCol, NewBoard),
-  updateRowAndColumn( StartRow-StartCol, NewRow-NewCol),
-  removeStarvingAdaptoids(NewBoard ,NewRow, NewCol, NewBoard).
+empetyNeighbour(Board,R-C , NeighbourRow-NeghbourColumn):-
+  neighbourRowColumn(R-C, NeighbourRow-NeghbourColumn),
+  getElement(Board,_,NeighbourRow,NeghbourColumn, vazio).
 
 
-removeStarvingAdaptoids(Board,StartRow, StartCol, NewBoard):-
-  updateRowAndColumn( StartRow-StartCol, NewRow-NewCol),
-  removeStarvingAdaptoids(Board,NewRow, NewCol, NewBoard).
+removeStarvingAdaptoids(Board, Color, NewBoard):-
+  findall([R-C], getElement(Board,_,R,C,Color-_-_ ), Adaptoids),
+  captureStarvingAdaptoid(Adaptoids, Board, NewBoard).
 
+captureStarvingAdaptoid([], Board, Board).
+captureStarvingAdaptoid([R-C|Rest], Board, NewBoard):-
+  findall([NR, NC], empetyNeighbour(Board, R-C, NR-NC), Neighbours),
+  length(Neighbours, NumOfNeighbours),
+  getNumberOfExtremities(Board, R-C, NumberOfExtremities),
+  captureAdaptoid(Board,TempBoard, R-C, NumOfNeighbours, NumberOfExtremities),
+  captureStarvingAdaptoid(Rest, TempBoard, NewBoard).
 
+%% depois é necessario mudar a pontuação dos jogadores aqui
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%% New adaptoid %%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+captureAdaptoid(Board,NewBoard, R-C, NumOfNeighbours, NumberOfExtremities):-
+    NumberOfExtremities <= NumOfNeighbours.
 
-
+captureAdaptoid(Board,NewBoard, R-C, NumOfNeighbours, NumberOfExtremities):-
+  NumberOfExtremities > NumOfNeighbours,
+  format("extremiites ~d Neighbours ~d", [NumberOfExtremities,NumOfNeighbours]),
+  removeAdaptoid(Board,_, R-C, NewBoard).
 
 neighbourRowColumn(PR-PC, FR-FC):-
   FR is PR + 1, FC is PC.
@@ -203,6 +157,9 @@ neighbourIsSameColor(Board, Row-Column, Color):-
   getElement(Board, _, FinalRow, FinalColumn, C-L-P),
   Color = C.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%% New adaptoid %%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 createNewAdaptoid(Board, Color,R-C, NewBoard):-
