@@ -136,38 +136,56 @@ somarRes([Head | R],TRes, Res):-
 
 
 updateRowAndColumn(PR-PC, FR-FC):-
-    TemCol is PC + 1,
+    TempCol is PC + 1,
     TempCol =:= 7,
     FC is 0,
     FR is PR + 1.
 
 updateRowAndColumn(PR-PC, FR-FC):-
-    FR =:= PR,
-    FC is PC +1.
+    FR is  PR,
+    FC is PC + 1.
 
+% remove starving adaptoids
+% se o empetyCell falahr ele volta atras e tenta nova solução, entranco num cilco infinito
 
 removeStarvingAdaptoids(Board,StartRow, StartCol, NewBoard):-
-  \+ empetyCell(Board, _ ,StartRow-StarCol ),
+  \+ empetyCell(Board, _ ,StartRow-StartCol ),
   getEmpetyNeighbours(Board, StartRow, StartCol, Res),
   EmpetyHome is Res,
   getElement(Board, _, StartRow, StartCol, C - L - P),
   getNumberOfExtremities(C-L-P, Number),
+  format("element ~p : neighbours ~d : extremities ~d", [C-L-P, EmpetyHome, Number]),
   Number < EmpetyHome,
-  updateRowAndColumn( StartRow-StarCol, NewRow-NewCol),
-  removeStarvingAdaptoids(Board,StartRow, StartCol, NewBoard).
+  updateRowAndColumn( StartRow-StartCol, NewRow-NewCol),
+  removeStarvingAdaptoids(Board,NewRow, NewCol, NewBoard).
 
 removeStarvingAdaptoids(Board,StartRow, StartCol, NewBoard):-
-  \+ empetyCell(Board, _ ,StartRow-StarCol ),
+  \+ empetyCell(Board, _ ,StartRow-StartCol ),
   getEmpetyNeighbours(Board, StartRow, StartCol, Res),
   EmpetyHome is Res,
   getElement(Board, _, StartRow, StartCol, C - L - P),
   getNumberOfExtremities(C-L-P, NumberExtremities),
+  format("element ~p : neighbours ~d : extremities ~d", [C-L-P, EmpetyHome, Number]),
   NumberExtremities > EmpetyHome,
-  removeAdaptoid(Board,_, StartRow-StartColumn, NewBoard),
-  updateRowAndColumn( StartRow-StarCol, NewRow-NewCol),
-  removeStarvingAdaptoids(NewBoard ,StartRow, StartCol, NewBoard).
+  removeAdaptoid(Board,_, StartRow-StartCol, NewBoard),
+  updateRowAndColumn( StartRow-StartCol, NewRow-NewCol),
+  removeStarvingAdaptoids(NewBoard ,NewRow, NewCol, NewBoard).
 
 
 removeStarvingAdaptoids(Board,StartRow, StartCol, NewBoard):-
-  updateRowAndColumn( StartRow-StarCol, NewRow-NewCol),
-  removeStarvingAdaptoids(Board,StartRow, StartCol, NewBoard).
+  updateRowAndColumn( StartRow-StartCol, NewRow-NewCol),
+  removeStarvingAdaptoids(Board,NewRow, NewCol, NewBoard).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%% New adaptoid %%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+findAdaptoidOfSameColor(Board, R-C):-
+  %% descobrir uma adaptoid da mesma cor com casa livre
+
+
+CreateNewAdaptoid(Board, C, NewBoard):-
+  findAdaptoidOfSameColor(Board, R-C),
+  setMatrixElement(R, C, C-0-0,Board, NewBoard).
