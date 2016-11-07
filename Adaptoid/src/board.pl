@@ -15,7 +15,7 @@ tabuleiro1( [
             [!,x,vazio,vazio,vazio,vazio,vazio],
             [x,vazio,vazio,p - 2 - 1,vazio,vazio,vazio],
             [vazio,vazio,vazio,vazio,vazio,vazio,vazio],
-            [x,vazio,vazio,vazio,vazio,p-2-3,vazio],
+            [x,vazio,vazio,vazio,vazio,b-2-3,vazio],
             [!,x,vazio,vazio,b - 5 - 1,b - 3 - 2 ,vazio],
             [!,!,x,vazio,vazio,vazio,vazio]
              ]

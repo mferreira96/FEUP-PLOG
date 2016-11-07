@@ -91,12 +91,12 @@ empetyCell(Board, Player, Row-Column):-
 %%%% one adaptoid can capture another one if he has more pincers
 %%% C1 - L1 - P1 is the adaptoid that was already on that position
 compareAdaptoids(C-L-P, C1 - L1 - P1, Winners):-
-  C \= C1,
+  \+sameColor(C,C1),
   P > P1,
   append([C-L-P], [], Winners).
 
 compareAdaptoids(C-L-P, C1-L1-P1, Winners):-
-  C \= C1,
+  \+sameColor(C,C1),
   P1 > P,
   append([C1-L1-P1], [], Winners).
 
@@ -104,6 +104,9 @@ compareAdaptoids(C-L-P, C1-L1-P1, Winners):-
     P =:= P1,
     append([C-L-P], [], TempList),
     append([C1-L1-P1], TempList, Winners).
+
+sameColor(Color, ColorEnemy):-
+      Color = ColorEnemy.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%% Neighbours %%%%%%%%%%%%%%%%%
@@ -122,7 +125,7 @@ removeStarvingAdaptoids(Board, Color, NewBoard):-
 
 captureStarvingAdaptoid([], Board, Board).
 captureStarvingAdaptoid([R-C|Rest], Board, NewBoard):-
-  findall([NR, NC], empetyNeighbour(Board, R-C, NR-NC), Neighbours),
+  findall([NR-NC], empetyNeighbour(Board, R-C, NR-NC), Neighbours),
   length(Neighbours, NumOfNeighbours),
   getNumberOfExtremities(Board, R-C, NumberOfExtremities),
   captureAdaptoid(Board,TempBoard, R-C, NumOfNeighbours, NumberOfExtremities),
@@ -131,12 +134,13 @@ captureStarvingAdaptoid([R-C|Rest], Board, NewBoard):-
 %% depois é necessario mudar a pontuação dos jogadores aqui
 
 captureAdaptoid(Board,NewBoard, R-C, NumOfNeighbours, NumberOfExtremities):-
-    NumberOfExtremities <= NumOfNeighbours.
-
-captureAdaptoid(Board,NewBoard, R-C, NumOfNeighbours, NumberOfExtremities):-
   NumberOfExtremities > NumOfNeighbours,
-  format("extremiites ~d Neighbours ~d", [NumberOfExtremities,NumOfNeighbours]),
+  format('extremiites ~d Neighbours ~d', [NumberOfExtremities,NumOfNeighbours]),
   removeAdaptoid(Board,_, R-C, NewBoard).
+
+captureAdaptoid(_,_, _, NumOfNeighbours, NumberOfExtremities):-
+    NumberOfExtremities =< NumOfNeighbours.
+
 
 neighbourRowColumn(PR-PC, FR-FC):-
   FR is PR + 1, FC is PC.
@@ -155,7 +159,7 @@ neighbourRowColumn(PR-PC, FR-FC):-
 neighbourIsSameColor(Board, Row-Column, Color):-
   neighbourRowColumn(Row-Column, FinalRow-FinalColumn),
   getElement(Board, _, FinalRow, FinalColumn, C-L-P),
-  Color = C.
+  sameColor(Color, C).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%% New adaptoid %%%%%%%%%%%%%%%%%%%
@@ -166,3 +170,32 @@ createNewAdaptoid(Board, Color,R-C, NewBoard):-
   empetyCell(Board, _, R-C),!,
   neighbourIsSameColor(Board, R-C, Color),
   setMatrixElement(R, C, Color-0-0,Board, NewBoard).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%% PATH %%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% check
+
+findPath(Board,StartRow-StartCol, FinalRow-FinalColumn, DistMax):-
+  \+ empetyCell(Board,_,StartRow-StartCol),
+  (empetyCell(Board,_,FinalRow-FinalColumn); getElement(Board,_,FinalRow, FinalColumn, C-L-P), getElement(Board,_,FinalRow, FinalColumn, C1-L-P), \+ sameColor(C,C1)),
+  auxiliarPath(Board,StartRow-StartCol, FinalRow-FinalColumn, DistMax, List, FinalList).
+
+auxiliarPath(Board,StartRow-StartCol, FinalRow-FinalColumn, Dist, List, FinalList):-
+  Dist = 1,
+  neighbourRowColumn(StartRow-StartCol, FinalRow-FinalColumn),
+  append(List, [FinalRow-FinalColumn], FinalList).
+
+
+auxiliarPath(Board,StartRow-StartCol, FinalRow-FinalColumn, Dist, List, FinalList):-
+  Dist> 1,
+  neighbourRowColumn(StartRow-StartCol, NextRow-NextColumn),
+  (NextRow /= FinalRow ; NextColumn /= FinalColumn),
+  getElement(Board,_,NextRow, NextColumn,Element),
+  Element = vazio,
+  \+ member(NextRow-NextColumn, List),
+  append(List, [NextRow-NextColumn], TempList),
+  TempDist is Dist - 1,
+  auxiliarPath(Board, NextRow-NextColumn, FinalRow-FinalColumn, TempDist, TempList, FinalList).
