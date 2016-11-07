@@ -21,3 +21,11 @@ createAdaptoid:-
   tabuleiro1(_X),
   createNewAdaptoid(_X, p,2-2, NewBoard),
   displayBoard(NewBoard,0).
+
+
+find:-
+  tabuleiro1(_X),
+  getElement(_X,_,2,3, Element),
+  getNuberOfLegs(Element, Leg),
+  findPath(_X,2-3, 2-1,4, NewBoard),
+  displayBoard(NewBoard, 0).

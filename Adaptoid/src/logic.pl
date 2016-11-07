@@ -42,6 +42,8 @@ getNumberOfExtremities(Board, R-C, Number):-
   getElement(Board, _, Row, Col,C-L-P),
   Number is L + P.
 
+getNuberOfLegs(C-L-P, Legs):-
+  Legs is L.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%% Adaptoid moves %%%%%%%%
@@ -178,24 +180,25 @@ createNewAdaptoid(Board, Color,R-C, NewBoard):-
 
 % check
 
-findPath(Board,StartRow-StartCol, FinalRow-FinalColumn, DistMax):-
-  \+ empetyCell(Board,_,StartRow-StartCol),
+findPath(Board,StartRow-StartCol, FinalRow-FinalColumn, DistMax, NewBoard):-
+  getElement(Board, _ , StartRow,StartCol, C-_-_),
   (empetyCell(Board,_,FinalRow-FinalColumn); getElement(Board,_,FinalRow, FinalColumn, C-L-P), getElement(Board,_,FinalRow, FinalColumn, C1-L-P), \+ sameColor(C,C1)),
-  auxiliarPath(Board,StartRow-StartCol, FinalRow-FinalColumn, DistMax, List, FinalList).
-
-auxiliarPath(Board,StartRow-StartCol, FinalRow-FinalColumn, Dist, List, FinalList):-
-  Dist = 1,
-  neighbourRowColumn(StartRow-StartCol, FinalRow-FinalColumn),
-  append(List, [FinalRow-FinalColumn], FinalList).
+  auxiliarPath(Board,StartRow-StartCol, FinalRow-FinalColumn, DistMax, List, FinalList),
+  moveAdaptoid(Board, _, StartRow-StartCol, FinalRow-FinalColumn, NewBoard).
 
 
 auxiliarPath(Board,StartRow-StartCol, FinalRow-FinalColumn, Dist, List, FinalList):-
   Dist> 1,
   neighbourRowColumn(StartRow-StartCol, NextRow-NextColumn),
-  (NextRow /= FinalRow ; NextColumn /= FinalColumn),
+  (NextRow-NextColumn \= FinalRow-FinalColumn ),
   getElement(Board,_,NextRow, NextColumn,Element),
   Element = vazio,
-  \+ member(NextRow-NextColumn, List),
+  \+(member(NextRow-NextColumn, List)),
   append(List, [NextRow-NextColumn], TempList),
   TempDist is Dist - 1,
   auxiliarPath(Board, NextRow-NextColumn, FinalRow-FinalColumn, TempDist, TempList, FinalList).
+
+auxiliarPath(Board,StartRow-StartCol, FinalRow-FinalColumn, Dist, List, FinalList):-
+  Dist >= 0,
+  neighbourRowColumn(StartRow-StartCol, FinalRow-FinalColumn),
+  append(List, [FinalRow-FinalColumn], FinalList).
