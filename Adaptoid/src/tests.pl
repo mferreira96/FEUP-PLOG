@@ -12,9 +12,8 @@ teste1(Res):-
 
 % Is necessary test this predicate
 removeStarving:-
-  tabuleiro1(_X),
-  % displayBoard(_X,0),
-  removeStarvingAdaptoids(_X,b, NewBoard),
+  tabuleiro1(X),
+  removeStarvingAdaptoids(X,b, NewBoard),
   displayBoard(NewBoard, 0).
 
 createAdaptoid:-
@@ -25,7 +24,7 @@ createAdaptoid:-
 
 find:-
   tabuleiro1(_X),
-  getElement(_X,_,2,3, Element),
+  getElement(_X,_,2-3, Element),
   getNuberOfLegs(Element, Leg),
   findPath(_X,2-3, 2-1,4, NewBoard),
   displayBoard(NewBoard, 0).

@@ -39,7 +39,7 @@ updateAdaptoid(Board, Player, Row-Column,Pincer, Leg, NewBoard):-
     setMatrixElement(Row, Column, C - L1 - P1, Board, NewBoard).
 
 getNumberOfExtremities(Board, R-C, Number):-
-  getElement(Board, _, R-C,C-L-P),
+  getElement(Board, _, R-C,_-L-P),
   Number is L + P.
 
 getNuberOfLegs(C-L-P, Legs):-
@@ -122,13 +122,14 @@ empetyNeighbour(Board,R-C , NeighbourRow-NeghbourColumn):-
 
 
 removeStarvingAdaptoids(Board, Color, NewBoard):-
-  findall([R-C], getElement(Board,_,R -C,Color-_-_ ), Adaptoids),
+  bagof([R-C], getElement(Board,_,R-C,Color-_-_ ), Adaptoids),
   captureStarvingAdaptoid(Adaptoids, Board, NewBoard).
 
 captureStarvingAdaptoid([], Board, Board).
-captureStarvingAdaptoid([R-C|Rest], Board, NewBoard):-
-  findall([NR-NC], empetyNeighbour(Board, R-C, NR-NC), Neighbours),
+captureStarvingAdaptoid([[R-C]|Rest], Board, NewBoard):-
+  bagof([NR-NC], empetyNeighbour(Board, R-C, NR-NC), Neighbours),
   length(Neighbours, NumOfNeighbours),
+  format('tamanho ~d', [NumOfNeighbours]),
   getNumberOfExtremities(Board, R-C, NumberOfExtremities),
   captureAdaptoid(Board,TempBoard, R-C, NumOfNeighbours, NumberOfExtremities),
   captureStarvingAdaptoid(Rest, TempBoard, NewBoard).
@@ -140,7 +141,7 @@ captureAdaptoid(Board,NewBoard, R-C, NumOfNeighbours, NumberOfExtremities):-
   format('extremiites ~d Neighbours ~d', [NumberOfExtremities,NumOfNeighbours]),
   removeAdaptoid(Board,_, R-C, NewBoard).
 
-captureAdaptoid(_,_, _, NumOfNeighbours, NumberOfExtremities):-
+captureAdaptoid(Board,Board, _, NumOfNeighbours, NumberOfExtremities):-
     NumberOfExtremities =< NumOfNeighbours.
 
 
@@ -188,7 +189,7 @@ findPath(Board,StartRow-StartCol, FinalRow-FinalColumn, DistMax, NewBoard):-
 
 
 auxiliarPath(Board,StartNode, FinalNode, Dist, List, FinalList):-
-  Dist> 1,
+  Dist > 1,
   neighbourRowColumn(StartNode, NextNode),
   (NextNode \= FinalNode ),
   getElement(Board,_,NextNode,Element),
