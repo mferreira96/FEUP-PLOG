@@ -8,7 +8,9 @@ teste1(Res):-
   tabuleiro1(_X),
   getEmpetyNeighbours(_X,5,5, Res).
 
-
+testFindall(Adaptoids, Color):-
+    tabuleiro1(X),
+    findall(R-C, (getElement(X,_,R-C,Color-_-_)), Adaptoids).
 
 % Is necessary test this predicate
 removeStarving:-

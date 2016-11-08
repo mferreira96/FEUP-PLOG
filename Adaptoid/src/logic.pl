@@ -122,14 +122,16 @@ empetyNeighbour(Board,R-C , NeighbourRow-NeghbourColumn):-
 
 
 removeStarvingAdaptoids(Board, Color, NewBoard):-
-  bagof([R-C], getElement(Board,_,R-C,Color-_-_ ), Adaptoids),
+  findall(R-C, getElement(Board,_,R-C, Color-_-_ ), Adaptoids),
+  length(Adaptoids, Tamanho),
+  format('Adaptoids -- ~d',[Tamanho]),nl,
   captureStarvingAdaptoid(Adaptoids, Board, NewBoard).
 
 captureStarvingAdaptoid([], Board, Board).
-captureStarvingAdaptoid([[R-C]|Rest], Board, NewBoard):-
-  bagof([NR-NC], empetyNeighbour(Board, R-C, NR-NC), Neighbours),
+captureStarvingAdaptoid([R-C|Rest], Board, NewBoard):-
+  findall(NR-NC, empetyNeighbour(Board, R-C, NR-NC), Neighbours),
   length(Neighbours, NumOfNeighbours),
-  format('tamanho ~d', [NumOfNeighbours]),
+  format('tamanho ~d', [NumOfNeighbours]),nl ,
   getNumberOfExtremities(Board, R-C, NumberOfExtremities),
   captureAdaptoid(Board,TempBoard, R-C, NumOfNeighbours, NumberOfExtremities),
   captureStarvingAdaptoid(Rest, TempBoard, NewBoard).
