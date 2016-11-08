@@ -18,7 +18,7 @@ setListElemt(Col, NewElem, [H|L], [H|R]):-
   setListElemt(Col1, NewElem, L, R).
 
 
-getElement(Board, Player, Row, Column, Element):-
+getElement(Board, Player, Row - Column, Element):-
     nth0(Row, Board, List),
     nth0(Column, List, Element).
 
@@ -34,12 +34,12 @@ updateBodyOfAdaptoid(C - L - P, C - L1 - P1, Pincer, Leg):-
       P1 is P + Pincer.
 
 updateAdaptoid(Board, Player, Row-Column,Pincer, Leg, NewBoard):-
-    getElement(Board, Player, Row, Column, C - L - P),
+    getElement(Board, Player, Row - Column, C - L - P),
     updateBodyOfAdaptoid(C - L - P, C - L1 - P1 ,Pincer , Leg),
     setMatrixElement(Row, Column, C - L1 - P1, Board, NewBoard).
 
 getNumberOfExtremities(Board, R-C, Number):-
-  getElement(Board, _, Row, Col,C-L-P),
+  getElement(Board, _, R-C,C-L-P),
   Number is L + P.
 
 getNuberOfLegs(C-L-P, Legs):-
@@ -51,7 +51,7 @@ getNuberOfLegs(C-L-P, Legs):-
 
 
 moveAdaptoid(Board, Player, Row-Column, FinalRow-FinalColumn, NewBoard):-
-    getElement(Board, Player, Row, Column, Adaptoid),
+    getElement(Board, Player, Row - Column, Adaptoid),
     setMatrixElement(Row, Column, vazio, Board, TempBoard),
     setMatrixElement(FinalRow, FinalColumn, Adaptoid, TempBoard, NewBoard).
 
@@ -82,7 +82,7 @@ validateMove(Board,Player, Row-Column):-
     empetyCell(Boar, Player, Row-Column).
 
 empetyCell(Board, Player, Row-Column):-
-  getElement(Board, _, Row, Column, Element),
+  getElement(Board, _, Row - Column, Element),
   Element = vazio.
 
 
@@ -118,11 +118,11 @@ sameColor(Color, ColorEnemy):-
 
 empetyNeighbour(Board,R-C , NeighbourRow-NeghbourColumn):-
   neighbourRowColumn(R-C, NeighbourRow-NeghbourColumn),
-  getElement(Board,_,NeighbourRow,NeghbourColumn, vazio).
+  getElement(Board,_,NeighbourRow-NeghbourColumn, vazio).
 
 
 removeStarvingAdaptoids(Board, Color, NewBoard):-
-  findall([R-C], getElement(Board,_,R,C,Color-_-_ ), Adaptoids),
+  findall([R-C], getElement(Board,_,R -C,Color-_-_ ), Adaptoids),
   captureStarvingAdaptoid(Adaptoids, Board, NewBoard).
 
 captureStarvingAdaptoid([], Board, Board).
@@ -160,7 +160,7 @@ neighbourRowColumn(PR-PC, FR-FC):-
 
 neighbourIsSameColor(Board, Row-Column, Color):-
   neighbourRowColumn(Row-Column, FinalRow-FinalColumn),
-  getElement(Board, _, FinalRow, FinalColumn, C-L-P),
+  getElement(Board, _, FinalRow - FinalColumn, C-L-P),
   sameColor(Color, C).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -181,24 +181,24 @@ createNewAdaptoid(Board, Color,R-C, NewBoard):-
 % check
 
 findPath(Board,StartRow-StartCol, FinalRow-FinalColumn, DistMax, NewBoard):-
-  getElement(Board, _ , StartRow,StartCol, C-_-_),
-  (empetyCell(Board,_,FinalRow-FinalColumn); getElement(Board,_,FinalRow, FinalColumn, C-L-P), getElement(Board,_,FinalRow, FinalColumn, C1-L-P), \+ sameColor(C,C1)),
+  getElement(Board, _ , StartRow-StartCol, C-_-_),
+  (empetyCell(Board,_,FinalRow-FinalColumn); (getElement(Board,_,FinalRow - FinalColumn, C-L-P), getElement(Board,_,FinalRow - FinalColumn, C1-L-P), \+sameColor(C,C1))),
   auxiliarPath(Board,StartRow-StartCol, FinalRow-FinalColumn, DistMax, List, FinalList),
   moveAdaptoid(Board, _, StartRow-StartCol, FinalRow-FinalColumn, NewBoard).
 
 
-auxiliarPath(Board,StartRow-StartCol, FinalRow-FinalColumn, Dist, List, FinalList):-
+auxiliarPath(Board,StartNode, FinalNode, Dist, List, FinalList):-
   Dist> 1,
-  neighbourRowColumn(StartRow-StartCol, NextRow-NextColumn),
-  (NextRow-NextColumn \= FinalRow-FinalColumn ),
-  getElement(Board,_,NextRow, NextColumn,Element),
+  neighbourRowColumn(StartNode, NextNode),
+  (NextNode \= FinalNode ),
+  getElement(Board,_,NextNode,Element),
   Element = vazio,
-  \+(member(NextRow-NextColumn, List)),
-  append(List, [NextRow-NextColumn], TempList),
+  \+(member(NextNode, List)),
+  append(List, [NextNode], TempList),
   TempDist is Dist - 1,
-  auxiliarPath(Board, NextRow-NextColumn, FinalRow-FinalColumn, TempDist, TempList, FinalList).
+  auxiliarPath(Board, NextNode, FinalNode, TempDist, TempList, FinalList).
 
-auxiliarPath(Board,StartRow-StartCol, FinalRow-FinalColumn, Dist, List, FinalList):-
+auxiliarPath(Board,StartNode, FinalNode, Dist, List, FinalList):-
   Dist >= 0,
-  neighbourRowColumn(StartRow-StartCol, FinalRow-FinalColumn),
-  append(List, [FinalRow-FinalColumn], FinalList).
+  neighbourRowColumn(StartNode, FinalNode),
+  append(List, [FinalNode], FinalList).
