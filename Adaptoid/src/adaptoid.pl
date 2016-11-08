@@ -25,3 +25,30 @@ toMove(Board, Player):-
   readCommand(Row),
   validateMove(Board, Player, Row-Column),
   moveAdaptoid(Board, Player, R-C, Row-Column, NewBoard).
+
+
+% Result message
+
+winnerMessage(branco):- write('Jogador Branco é o vencedor!'),nl.
+winnerMessage(preto):- write('Jogador Preto é o vencedor!'),nl.
+winnerMessage(empate):- write('O jogo empatou!'),nl.
+
+% Result announcement (falta empate)
+
+winnerAnnouncement(Wscore,Bscore):-
+      Wscore > Bscore,
+      winnerMessage(branco).
+
+winnerAnnouncement(Wscore,Bscore):-
+      Bscore > Wscore,
+      winnerMessage(preto).
+
+
+
+
+% announce player turn
+announcePlayerTurn(Color):-write('Vez do jogador '),write(Color),nl.
+
+
+
+
