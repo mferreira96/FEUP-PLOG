@@ -1,7 +1,7 @@
 :- include('board.pl').
 :- include('logic.pl').
 :- include('interface.pl').
-:- include('adaptoid.pl').
+
 
 
 teste1(Res):-
