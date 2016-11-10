@@ -79,7 +79,7 @@ validateCell(Row, Column):-
 
 validateMove(Board,Player, Row-Column):-
     validateCell(Row, Column),
-    empetyCell(Boar, Player, Row-Column).
+    empetyCell(Board, Player, Row-Column).
 
 empetyCell(Board, Player, Row-Column):-
   getElement(Board, _, Row - Column, Element),
