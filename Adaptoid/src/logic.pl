@@ -92,6 +92,13 @@ empetyCell(Board, Player, Row-Column):-
 
 %%%% one adaptoid can capture another one if he has more pincers
 %%% C1 - L1 - P1 is the adaptoid that was already on that position
+
+compareAdaptoids(Element,vazio, Winners):-
+      append([Element], [], Winners).
+
+compareAdaptoids(vazio,Element, Winners):-
+      append([Element], [], Winners).
+
 compareAdaptoids(C-L-P, C1 - L1 - P1, Winners):-
   \+sameColor(C,C1),
   P > P1,
@@ -180,14 +187,20 @@ createNewAdaptoid(Board, Color,R-C, NewBoard):-
 %%%%%%%%%%%% PATH %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
-% check
+moveWithPossibleCapture(Board,StartRow-StartCol, FinalRow-FinalColumn, NewestBoard):-
+  getElement(Board, _ , StartRow-StartCol, C-L-P),!,
+  findPath(Board,StartRow-StartCol, FinalRow-FinalColumn,L, NewBoard),
+  getElement(Board, _ , StartRow-StartCol, Element),
+  compareAdaptoids(C-L-P, Element, Winners),
+  nth0(0,Winners, Winner),
+  removeAdaptoid(Board,_, StartRow-StartCol, NewBoard),
+  setMatrixElement(FinalRow, FinalColumn, Winner, NewBoard, NewestBoard).
 
 findPath(Board,StartRow-StartCol, FinalRow-FinalColumn, DistMax, NewBoard):-
   getElement(Board, _ , StartRow-StartCol, C-_-_),
   (empetyCell(Board,_,FinalRow-FinalColumn); (getElement(Board,_,FinalRow - FinalColumn, C1-L-P), \+sameColor(C,C1))),
-  auxiliarPath(Board,StartRow-StartCol, FinalRow-FinalColumn, DistMax, [StartRow-StartCol], FinalList),
-  moveAdaptoid(Board, _, StartRow-StartCol, FinalRow-FinalColumn, NewBoard).
+  auxiliarPath(Board,StartRow-StartCol, FinalRow-FinalColumn, DistMax, [StartRow-StartCol], FinalList).
+  % moveAdaptoid(Board, _, StartRow-StartCol, FinalRow-FinalColumn, NewBoard).
 
 
 auxiliarPath(Board,StartNode, FinalNode, Dist, List, FinalList):-
