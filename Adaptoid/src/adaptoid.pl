@@ -5,26 +5,37 @@
 :- include('interface.pl').
 
 
-% adaptoid:-
-  % tabuleiro(_X),
-  % toMove(_X, _).
+adaptoid:-
+  tabuleiro1(Board),
+  % assert(Board),
+  % assert() jogador
+  % assert() jogador
+  % assert() cor do jogador que esta a jogar
+  displayBoard(Board,0),nl,
+  repeat,
+    toMove(Board,_),
+    write('please press a key to continue'),
+    get_code(_).
 
 
-
-  %% displayBoard(_X, 0),
-  % moveAdaptoid(_X, _ , 3 - 1, 1 - 5, Y),
-  % removeAdaptoid(Y, _ , 1 - 5, T),
-  % displayBoard(T, 0).
-
-% needded to be tested
 
 toMove(Board, Player):-
-  askCoords,
-  readCommand(R),
-  askNextCoords,
-  readCommand(Row),
-  validateMove(Board, Player, Row-Column),
-  moveAdaptoid(Board, Player, R-C, Row-Column, NewBoard).
+  write('actual position of adaptoid'),nl,
+  write('please introduce the coord x = '),
+  read(R),
+  format("lido = ~d", [R]),nl,
+  write('please introduce the coord y = '),
+  read(C),
+  format("lido = ~d", [C]),nl,
+  write('Next position of adaptoid'),nl,
+  write('please introduce the coord x = '),
+  read(Row),
+  format("lido = ~d", [Row]),nl,
+  write('please introduce the coord y = '),
+  read(Column),
+  format("lido = ~d", [Column]),nl,
+  validateMove(Board,_, Row-Column),
+  moveAdaptoid(Board,_, R-C, Row-Column, NewBoard).
 
 
 % Result message
@@ -48,7 +59,3 @@ winnerAnnouncement(Wscore,Bscore):-
 
 % announce player turn
 announcePlayerTurn(Color):-write('Vez do jogador '),write(Color),nl.
-
-
-
-
