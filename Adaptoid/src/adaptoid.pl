@@ -1,28 +1,30 @@
 :- use_module(library(system)).
 :- use_module(library(lists)).
+
+:- dynamic tabuleiro1/1.
+:- dynamic turnColor/1.
+:- dynamic player/5.
+
 :- include('board.pl').
 :- include('logic.pl').
 :- include('interface.pl').
 :- include('utils.pl').
 
-:- dynamic board/1.
-:- dynamic turnColor/1.
-:- dynamic player/5.
 
+% falta fazer o retract dos jogadores e da cor do jogador que esta atualmente a jogar
+
+/* funçao principal do jogo*/
 
 adaptoid:-
-  tabuleiro1(Board),
-  %assert(Board),
-  %assert(player)
-  % assert() jogador
-  % assert() cor do jogador que esta a jogar
-  % displayBoard(Board,0),nl,
   repeat,
-  once(play),
-  displayBoard(Board,0).
+  retract( tabuleiro1(Board)),
+  once(play(Board, NewBoard)),
+  displayBoard(NewBoard,0),
+  assert(tabuleiro1(NewBoard)),
+  fail.
 
 
-play(Board):-
+play(Board, NewBoard):-
   displayBoard(Board,0),
   toMove(Board,_).
   toCreateOrAdd(Board,_),

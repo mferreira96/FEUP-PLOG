@@ -1,4 +1,6 @@
 
+/*Menu inicial*/
+
 startMenu:- clearScreen(20),
   write('Choose one of the follow options'), nl,
   write('1 - Play'), nl,
@@ -16,6 +18,7 @@ startMenu:- clearScreen(20),
 
 %  fazer o switch case aqui
 
+/*Opcoes de jogo*/
 gameOption:- clearScreen(20),
   write('Choose one of the follow options'), nl,
   write('1 - Computer vs Computer'), nl,
@@ -31,6 +34,7 @@ gameOption:- clearScreen(20),
    Answer = '4' -> startMenu;
    gameOption).
 
+/*nivel de dificuldade do computador, quando o jogo e entre humano e computador*/
 
 chooseComputerLevel:- clearScreen(20),
   write('Choose one of the follow options'), nl,
@@ -45,6 +49,7 @@ chooseComputerLevel:- clearScreen(20),
    Answer = '3' -> startMenu;
    chooseComputerLevel).
 
+/*nivel de dificuldade do computador, quando o jogo e entre dois computadores*/
 choose2ComputerLevel:- clearScreen(20),
   write('Choose one of the follow options'), nl,
   write('1 - Hard vs Hard'), nl,
@@ -60,10 +65,11 @@ choose2ComputerLevel:- clearScreen(20),
    Answer = '4' -> startMenu;
    choose2ComputerLevel).
 
-
+/* para eliminar possiveis inputs*/
 discardInput:-
   get_code(_).
 
+/*limpa o ecra*/
 clearScreen(0).
 clearScreen(N):-
   nl,

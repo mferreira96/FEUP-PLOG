@@ -3,6 +3,7 @@
 %%% listManipulation %%%
 %%%%%%%%%%%%%%%%%%%%%%%%
 
+/*faz o update do tabuleiro, defenindo uma celula, com um novo elemento*/
 setMatrixElement(0, Col, NewElement, [Head| Rest], [NewHead| Rest]):-
   setListElemt(Col, NewElement, Head , NewHead).
 
@@ -11,13 +12,15 @@ setMatrixElement(Row, Col, NewElement, [Head| Rest], [Head| RRest]):-
   Row1 is Row - 1,
   setMatrixElement(Row1, Col, NewElement, Rest, RRest).
 
+/*faz o update de uma lista, defenindo uma celula, com um novo elemento*/
 setListElemt(0, NewElem, [_|L], [NewElem|L]).
 setListElemt(Col, NewElem, [H|L], [H|R]):-
   Col > 0,
   Col1 is Col -1,
   setListElemt(Col1, NewElem, L, R).
 
-
+/*obtem o conteudo presente na celula presente na posição (Row-Column)
+getElement(+ Board, + Player,+ (Row - Column), - Element)*/
 getElement(Board, Player, Row - Column, Element):-
     nth0(Row, Board, List),
     nth0(Column, List, Element).
@@ -27,20 +30,32 @@ getElement(Board, Player, Row - Column, Element):-
 %%%%%%% Update Adaptoid %%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
+/*atualiza o corpo do adaptoid colocando uma perna ou uma pinça no adaptoid  e retornando o adaptoid atualizado
+updateBodyOfAdaptoid(+Adaptoid,- NewAdaptoid, +Pincer, +Leg)*/
 %%% Adaptoid -> C (color) - L (Leg) - P (Pincer)
 updateBodyOfAdaptoid(C - L - P, C - L1 - P1, Pincer, Leg):-
       L1 is L + Leg,
       P1 is P + Pincer.
+
+/* atualiza o adaptoid, atualizando a sua constituição e atualiza o adaptoid no tabukeiro
+updateAdaptoid(+Board, +Player, +Posicao,+Pincer, +Leg, -NewBoard):-
+*/
 
 updateAdaptoid(Board, Player, Row-Column,Pincer, Leg, NewBoard):-
     getElement(Board, Player, Row - Column, C - L - P),
     updateBodyOfAdaptoid(C - L - P, C - L1 - P1 ,Pincer , Leg),
     setMatrixElement(Row, Column, C - L1 - P1, Board, NewBoard).
 
+
+/*Obtem o numero de extremidades (pernas + pincas)
+getNumberOfExtremities(+Board, +Posicao, -Number)*/
+
 getNumberOfExtremities(Board, R-C, Number):-
   getElement(Board, _, R-C,_-L-P),
   Number is L + P.
+
+/*Obtem o numero de pernas do Adaptoid
+getNuberOfLegs(+Adaptoid, -Legs)*/
 
 getNuberOfLegs(C-L-P, Legs):-
   Legs is L.
@@ -49,16 +64,23 @@ getNuberOfLegs(C-L-P, Legs):-
 %%%%%%%% Adaptoid moves %%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+/*Movimenta o adaptoid para a Posicao pretendida, atualizando o tabuleiro
+moveAdaptoid(+Board, +Player, +PosicaoInicial, +PosicaoFinal, -NewBoard)*/
 
 moveAdaptoid(Board, Player, Row-Column, FinalRow-FinalColumn, NewBoard):-
     getElement(Board, Player, Row - Column, Adaptoid),
     setMatrixElement(Row, Column, vazio, Board, TempBoard),
     setMatrixElement(FinalRow, FinalColumn, Adaptoid, TempBoard, NewBoard).
 
+/*retira o adaptoid do tabuleiro
+removeAdaptoid(+Board, +Player, +Posicao, -NewBoard)*/
 
 removeAdaptoid(Board, Player, Row-Column, NewBoard):-
       setMatrixElement(Row, Column, vazio, Board, NewBoard).
 
+
+
+/*valida as coordenadas da celula*/
 validateColumn(Column, Row):-
   Row < 4,
   Column < 7,
@@ -81,6 +103,9 @@ validateMove(Board,Player, Row-Column):-
     validateCell(Row, Column),
     empetyCell(Board, Player, Row-Column).
 
+/*verifica se a celula esta vazia
+empetyCell(+Board, +Player, +Posicao)*/
+
 empetyCell(Board, Player, Row-Column):-
   getElement(Board, _, Row - Column, Element),
   Element = vazio.
@@ -90,8 +115,7 @@ empetyCell(Board, Player, Row-Column):-
 %%%%%%%% Compare adaptoids %%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%% one adaptoid can capture another one if he has more pincers
-%%% C1 - L1 - P1 is the adaptoid that was already on that position
+/*compara dois adaptoids e escolhe o adaptod que vence*/
 
 compareAdaptoids(Element,vazio, Winners):-
       append([Element], [], Winners).
@@ -122,11 +146,13 @@ sameColor(Color, ColorEnemy):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-
+/*verifica se a celulda vizinha esta vazia*/
 empetyNeighbour(Board,R-C , NeighbourRow-NeghbourColumn):-
   neighbourRowColumn(R-C, NeighbourRow-NeghbourColumn),
   getElement(Board,_,NeighbourRow-NeghbourColumn, vazio).
 
+/*elimina os Adaptoids que estao esfomeados,ou seja, que o numero de extremidades do mesmo e superior ao numero de
+celulas vizinhas vazias*/
 
 removeStarvingAdaptoids(Board, Color, NewBoard):-
   findall(R-C, getElement(Board,_,R-C, Color-_-_ ), Adaptoids),
@@ -143,7 +169,6 @@ captureStarvingAdaptoid([R-C|Rest], Board, NewBoard):-
   captureAdaptoid(Board,TempBoard, R-C, NumOfNeighbours, NumberOfExtremities),
   captureStarvingAdaptoid(Rest, TempBoard, NewBoard).
 
-%% depois é necessario mudar a pontuação dos jogadores aqui
 
 captureAdaptoid(Board,NewBoard, R-C, NumOfNeighbours, NumberOfExtremities):-
   NumberOfExtremities > NumOfNeighbours,
@@ -153,6 +178,8 @@ captureAdaptoid(Board,NewBoard, R-C, NumOfNeighbours, NumberOfExtremities):-
 captureAdaptoid(Board,Board, _, NumOfNeighbours, NumberOfExtremities):-
     NumberOfExtremities =< NumOfNeighbours.
 
+/*da nos as coordenadas das celulas vizinhas
+neighbourRowColumn(+PosicaoAdaptoid,-PosicaoVizinhos)/
 
 neighbourRowColumn(PR-PC, FR-FC):-
   FR is PR + 1, FC is PC.
@@ -167,7 +194,7 @@ neighbourRowColumn(PR-PC, FR-FC):-
 neighbourRowColumn(PR-PC, FR-FC):-
   FR is PR, FC is PC -1.
 
-
+/*o vizinho tem a mesma cor */
 neighbourIsSameColor(Board, Row-Column, Color):-
   neighbourRowColumn(Row-Column, FinalRow-FinalColumn),
   getElement(Board, _, FinalRow - FinalColumn, C-L-P),
@@ -177,6 +204,9 @@ neighbourIsSameColor(Board, Row-Column, Color):-
 %%%%%%%% New adaptoid %%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+/*cria um novo adaptoid que e posicionado junto a um outro adaptoid desse jogador,
+o novo adaptopid começa sem pernas nem pincas
+createNewAdaptoid(+Board, +Color,+Posicao, -NewBoard):-*/
 
 createNewAdaptoid(Board, Color,R-C, NewBoard):-
   empetyCell(Board, _, R-C),!,
