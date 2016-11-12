@@ -179,7 +179,7 @@ captureAdaptoid(Board,Board, _, NumOfNeighbours, NumberOfExtremities):-
     NumberOfExtremities =< NumOfNeighbours.
 
 /*da nos as coordenadas das celulas vizinhas
-neighbourRowColumn(+PosicaoAdaptoid,-PosicaoVizinhos)/
+neighbourRowColumn(+PosicaoAdaptoid,-PosicaoVizinhos)*/
 
 neighbourRowColumn(PR-PC, FR-FC):-
   FR is PR + 1, FC is PC.

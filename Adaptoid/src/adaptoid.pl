@@ -12,11 +12,11 @@
 :- include('utils.pl').
 
 
-% falta fazer o retract dos jogadores e da cor do jogador que esta atualmente a jogar
-
 /* funçao principal do jogo*/
-player(Color,Body,Legs,Pincer,Score).
 
+player(p,12,12,12,0).
+player(b,12,12,12,0).
+turnColor(p).
 
 adaptoid:-
   repeat,
@@ -34,12 +34,14 @@ adaptoid:-
 
 
 play(Board, NewBoard):-
+  nl,
   displayBoard(Board,0),
   toMove(Board,_).
   toCreateOrAdd(Board,_),
   toEliminateStarvingAdaptoids(Board,Color).
 
 toMove(Board, Player):-
+  write('move adaptoid'),nl,
   write('actual position of adaptoid'),nl,
   askCoords(R-C),
   write('Next position of adaptoid'),nl,
