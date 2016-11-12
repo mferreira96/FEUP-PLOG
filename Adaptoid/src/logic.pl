@@ -220,7 +220,7 @@ createNewAdaptoid(Board, Color,R-C, NewBoard):-
 moveWithPossibleCapture(Board,StartRow-StartCol, FinalRow-FinalColumn, NewestBoard):-
   getElement(Board, _ , StartRow-StartCol, C-L-P),!,
   findPath(Board,StartRow-StartCol, FinalRow-FinalColumn,L, NewBoard),
-  getElement(Board, _ , StartRow-StartCol, Element),
+  getElement(Board, _ , FinalRow-FinalColumn, Element),
   compareAdaptoids(C-L-P, Element, Winners),
   nth0(0,Winners, Winner),
   removeAdaptoid(Board,_, StartRow-StartCol, NewBoard),
@@ -230,7 +230,6 @@ findPath(Board,StartRow-StartCol, FinalRow-FinalColumn, DistMax, NewBoard):-
   getElement(Board, _ , StartRow-StartCol, C-_-_),
   (empetyCell(Board,_,FinalRow-FinalColumn); (getElement(Board,_,FinalRow - FinalColumn, C1-L-P), \+sameColor(C,C1))),
   auxiliarPath(Board,StartRow-StartCol, FinalRow-FinalColumn, DistMax, [StartRow-StartCol], FinalList).
-  % moveAdaptoid(Board, _, StartRow-StartCol, FinalRow-FinalColumn, NewBoard).
 
 
 auxiliarPath(Board,StartNode, FinalNode, Dist, List, FinalList):-

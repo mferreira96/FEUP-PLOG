@@ -26,5 +26,5 @@ starving(Board, Color, R-C):-
 
 sumList([],0).
 sumList([Header|Rest], Result):-
-      Value is Rest + Header,
+      Value is ?Rest + Header,
       sumList(Rest, Value)

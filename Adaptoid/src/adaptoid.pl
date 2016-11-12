@@ -9,38 +9,37 @@
 :- include('board.pl').
 :- include('logic.pl').
 :- include('interface.pl').
-:- include('utils.pl').
-
-
-/* funçao principal do jogo*/
 
 player(p,12,12,12,0).
 player(b,12,12,12,0).
 turnColor(p).
 
+
+/* funçao principal do jogo*/
+
 adaptoid:-
-  repeat,
   retract(tabuleiro1(Board)),
   retract(player(p,12,12,12,0)),
   retract(player(b,12,12,12,0)),
   retract(turnColor(p)),
-  once(play(Board, NewBoard)),
-  displayBoard(NewBoard,0),
+  repeat,
+    once(play(Board, NewBoard, ColorIn)),
+    displayBoard(NewBoard,0),
   assert(tabuleiro1(NewBoard)),
   assert(player(p,_,_,_,_)),
   assert(player(b,_,_,_,_)),
-  assert(turnColor(p)),
-  fail.
+  assert(turnColor(p)), fail.
 
 
-play(Board, NewBoard):-
+play(Board, NewBoard, ColorIn):-
   nl,
+  getEnemyColor(ColorIn, ColorOut),
   displayBoard(Board,0),
-  toMove(Board,_).
-  toCreateOrAdd(Board,_),
-  toEliminateStarvingAdaptoids(Board,Color).
+  toMove(Board,Player, Board1),
+  toCreateOrAdd(Board1,Player, Board2),
+  toEliminateStarvingAdaptoids(Board2,Player, NewBoard).
 
-toMove(Board, Player):-
+toMove(Board, Player, NewBoard):-
   write('move adaptoid'),nl,
   write('actual position of adaptoid'),nl,
   askCoords(R-C),
@@ -50,14 +49,15 @@ toMove(Board, Player):-
   displayBoard(NewBoard,0).
 
 
-toCreateOrAdd(Board, Player):-
+toCreateOrAdd(Board, Player, NewBoard):-
   write('choose your option'), nl,
   askOptionForSecondRule(Answer),
-  secondRule(Answer, Board, NewBoard,p), % obter aqui a cor do jogador que esta a jogar
+  secondRule(Answer, Board, NewBoard,p),
   displayBoard(NewBoard,0).
-% criar os jogadores , para depois poder obter a cor
 
-toEliminateStarvingAdaptoids(Board,Color):-
+
+toEliminateStarvingAdaptoids(Board,Player,  NewBoard):-
+  getPlayerColor(Player, Color),
   removeStarvingAdaptoids(Board, Color, NewBoard),
   displayBoard(NewBoard,0).
 
@@ -72,7 +72,7 @@ secondRule(l, Board, NewBoard,Color):-
   updateAdaptoid(Board, _, R-C,0, 1, NewBoard).
 
 
-secondRule(l, Board, NewBoard,Color):-
+secondRule(p, Board, NewBoard,Color):-
   write('choose the coords of the Adaptoid'),nl,
   askCoords(R-C),
   updateAdaptoid(Board, _, R-C,1, 0, NewBoard).
@@ -86,7 +86,7 @@ askCoords(R-C):-
 
 
 askOptionForSecondRule(Answer):-
-  write('create a new adaptoid (c), add a Leg (l) or add a Pincer '),
+  write('create a new adaptoid (c), add a Leg (l) or add a Pincer(p) '),
   read(Answer).
 
 % Result message
@@ -108,3 +108,13 @@ testWinner(Board, Color):-
 
 % announce player turn
 announcePlayerTurn(Color):-write('Vez do jogador '),write(Color),nl.
+
+getPlayerColor([Color,Body,Pincer, Leg, Score], Color).
+
+getPlayerScore([Color,Body,Pincer, Leg, Score], Score).
+
+updatePlayerScore(Points,[Color,Body,Pincer, Leg, Score], [Color,Body,Pincer, Leg, NewScore]):-
+  NewScore is Points + Score.
+
+getEnemyColor(p, b).
+getEnemyColor(b, p).    
