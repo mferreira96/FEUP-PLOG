@@ -2,8 +2,9 @@
 :- use_module(library(lists)).
 
 :- dynamic tabuleiro1/1.
-:- dynamic turnColor/1.
 :- dynamic player/5.
+:- dynamic turnColor/1.
+
 
 :- include('board.pl').
 :- include('logic.pl').
@@ -14,13 +15,21 @@
 % falta fazer o retract dos jogadores e da cor do jogador que esta atualmente a jogar
 
 /* funçao principal do jogo*/
+player(Color,Body,Legs,Pincer,Score).
+
 
 adaptoid:-
   repeat,
-  retract( tabuleiro1(Board)),
+  retract(tabuleiro1(Board)),
+  retract(player(p,12,12,12,0)),
+  retract(player(b,12,12,12,0)),
+  retract(turnColor(p)),
   once(play(Board, NewBoard)),
   displayBoard(NewBoard,0),
   assert(tabuleiro1(NewBoard)),
+  assert(player(p,_,_,_,_)),
+  assert(player(b,_,_,_,_)),
+  assert(turnColor(p)),
   fail.
 
 
