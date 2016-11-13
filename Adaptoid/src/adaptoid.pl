@@ -13,22 +13,25 @@
 
 
 /* funçao principal do jogo*/
-
 adaptoid:-
+  startMenu.
+
+
+
+game(Mode, Difficult):-
   tabuleiro1(Board),
   assert(tabuleiro1(Board)),
   assert(player(p,12,12,12,0)),
   assert(player(b,12,12,12,0)),
   assert(turnColor(p)),
-
   repeat,
     turnColor(ColorIn),
-    once(play(ColorIn)),
+    once(play(Mode, ColorIn, Difficult)),
     getEnemyColor(ColorIn, ColorOut),
     retract(turnColor(ColorIn)),
     assert(turnColor(ColorOut)),
     showScores,
-    tabuleiro1(NewBoard),
+    tabuleiro1(NewBoard), % verificar se e necesssario
     updateBoard(NewBoard),
     testWinner(NewBoard,ColorIn),
 
@@ -37,9 +40,7 @@ adaptoid:-
   retract(player(b,_,_,_,_)),
   retract(turnColor(_)).
 
-
-
-play(ColorIn):-
+play(hh,ColorIn, _):-
   nl,
   announcePlayerTurn,
   tabuleiro1(Board),
@@ -47,6 +48,43 @@ play(ColorIn):-
   toMove(Board,ColorIn, Board1),
   toCreateOrAdd(Board1,ColorIn, Board2),
   toEliminateStarvingAdaptoids(Board2,ColorIn, NewBoard),
+  updateBoard(NewBoard).
+
+/* play(hh,ColorIn,Level)*/
+play(hc,b,Level):-
+  nl,
+  announcePlayerTurn,
+  tabuleiro1(Board),
+  displayBoard(Board,0),
+  toMove(Board,b, Board1),
+  toCreateOrAdd(Board1,b, Board2),
+  toEliminateStarvingAdaptoids(Board2,b, NewBoard),
+  updateBoard(NewBoard).
+
+play(hc,p,Level-_):-
+  nl,
+  announcePlayerTurn,
+  tabuleiro1(Board),
+  displayBoard(Board,0),
+  computer(p, Level, Board, NewBoard),
+  get_char(_),
+  updateBoard(NewBoard).
+
+
+play(cc,p,Level1-Level2):-
+  nl,
+  announcePlayerTurn,
+  tabuleiro1(Board),
+  displayBoard(Board,0),
+  computer(ColorIn, Level1, Board, NewBoard),
+  updateBoard(NewBoard).
+
+play(cc,b,Level1-Level2):-
+  nl,
+  announcePlayerTurn,
+  tabuleiro1(Board),
+  displayBoard(Board,0),
+  computer(ColorIn, Level2, Board, NewBoard),
   updateBoard(NewBoard).
 
 toMove(Board, ColorIn, NewBoard):-

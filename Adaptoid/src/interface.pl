@@ -1,5 +1,7 @@
 
 /*Menu inicial*/
+exit.
+
 
 startMenu:- clearScreen(20),
   write('Choose one of the follow options'), nl,
@@ -8,12 +10,12 @@ startMenu:- clearScreen(20),
   write('3 - About'), nl,
   write('4 - Exit'),nl,
   nl,
-  write('Press Enter to continue'),
+  write('Press Enter to continue'),nl,
   get_char(Answer), discardInput,
   (Answer = '1' -> play;
    Answer = '2' -> tuturialMenu;
    Answer = '3' -> aboutMenu;
-   Answer = '4' -> sair;
+   Answer = '4' -> exit;
    startMenu).
 
 %  fazer o switch case aqui
@@ -26,11 +28,11 @@ play:- clearScreen(20),
   write('3 - Human vs Human'), nl,
   write('4 - Exit'),nl,
   nl,
-  write('Press Enter to continue'),
+  write('Press Enter to continue'),nl,
   get_char(Answer), discardInput,
   (Answer = '1' -> choose2ComputerLevel;
    Answer = '2' -> chooseComputerLevel;
-   Answer = '3' -> humVsHum;
+   Answer = '3' -> game(hh,_);
    Answer = '4' -> startMenu;
    play).
 
@@ -42,10 +44,10 @@ chooseComputerLevel:- clearScreen(20),
   write('2 - Medium'),nl,
   write('3 - Exit'),nl,
   nl,
-  write('Press Enter to continue'),
+  write('Press Enter to continue'),nl,
   get_char(Answer), discardInput,
-  (Answer = '1' -> difficultHardPC;
-   Answer = '2' -> difficultMediumPC;
+  (Answer = '1' -> game(ch,hard);
+   Answer = '2' -> game(ch,medium);
    Answer = '3' -> startMenu;
    chooseComputerLevel).
 
@@ -53,15 +55,15 @@ chooseComputerLevel:- clearScreen(20),
 choose2ComputerLevel:- clearScreen(20),
   write('Choose one of the follow options'), nl,
   write('1 - Hard vs Hard'), nl,
-  write('2 - Hard vs Medum'),nl,
+  write('2 - Hard vs Medium'),nl,
   write('3 - Medium vs Medium'),nl,
   write('4 - Exit'),nl,
   nl,
-  write('Press Enter to continue'),
+  write('Press Enter to continue'),nl,
   get_char(Answer), discardInput,
-  (Answer = '1' -> hardVShard;
-   Answer = '2' -> hardVSmedium;
-   Answer = '3' -> mediumVSmedium;
+  (Answer = '1' -> game(cc,hard-hard);
+   Answer = '2' -> game(cc,hard-medium);
+   Answer = '3' -> game(cc,medium-medium);
    Answer = '4' -> startMenu;
    choose2ComputerLevel).
 
