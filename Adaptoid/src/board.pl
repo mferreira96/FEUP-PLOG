@@ -24,6 +24,37 @@ tabuleiro1( [
 
 list([_X|_Xs]).
 list([]).
+giveSpaceC(N):-
+        N=:=0,
+        write('0').
+giveSpaceC(N):-
+        N=:=1,
+        write('1 ').
+giveSpaceC(N):-
+        N=:=2,
+        write('2  ').
+
+giveSpaceC(N):-
+        N=:=3,
+        write('3   ').
+
+giveSpaceC(N):-
+        N=:=4,
+        write('4  ').
+giveSpaceC(N) :-
+       N =:= 5,
+        write('5 ').
+giveSpaceC(N) :-
+ N =:= 6,
+ write('6').
+
+
+
+
+
+
+
+        
 
 giveSpace(N) :-
  (N =:= 0; N =:= 6),
@@ -48,9 +79,9 @@ displayMember([List|Rest]) :-
 
 displayMember([]).
 
-displayA(x, N):- N > 3, write('  \\ ').
-displayA(X, _):-(X = x; X = !), write('    ').
-displayA(_, _):- write('  /\\ ').
+displayA(x, N,_):- N > 3, write('  \\ ').
+displayA(X, _,_):-(X = x; X = !), write('    ').
+displayA(_, _,C):- write('  /\\'),format('~d',[C]).
 
 displayB(x, N):-  N > 3, write('   \\').
 displayB(X, _):-(X = x; X = !), write('    ').
@@ -60,9 +91,9 @@ displayC(X, _):-(X = x; X = !), write('    ').
 displayC(vazio,_):- write('|    ').
 displayC(C - L - P, _):- write('| '), write(L),write(C),write(P), write('').
 
-displayLineA([X | Xs], Value) :- displayA(X, Value) , displayLineA(Xs, Value).
-displayLineA([], N):- N > 3, write(' /'), nl.
-displayLineA([], _T):- nl.
+displayLineA([X | Xs], Value,C) :- displayA(X, Value,C),C1 is C+1, displayLineA(Xs, Value,C1).
+displayLineA([], N,_):- N > 3, write(' /'), nl.
+displayLineA([], _T,_):- nl.
 
 displayLineB([X | Xs], Value) :- displayB(X,Value), displayLineB(Xs,Value).
 displayLineB([] ,N ):- N > 3, write('/'), nl.
@@ -88,10 +119,10 @@ displayEnd2(Counter) :-
 
 displayLine(L, Value) :-
 	giveSpace(Value),
-	displayLineA(L, Value),
+	displayLineA(L, Value,0),
 	giveSpace(Value),
 	displayLineB(L, Value),
-	giveSpace(Value),
+	giveSpaceC(Value),
 	displayLineC(L, Value).
 
 displayLine([], _T):- nl.
