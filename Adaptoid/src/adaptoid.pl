@@ -44,28 +44,28 @@ play(hh,ColorIn, _):-
   nl,
   announcePlayerTurn,
   tabuleiro1(Board),
-  displayBoard(Board,0),
+  %displayBoard(Board,0),
   toMove(Board,ColorIn, Board1),
   toCreateOrAdd(Board1,ColorIn, Board2),
   toEliminateStarvingAdaptoids(Board2,ColorIn, NewBoard),
   updateBoard(NewBoard).
 
 /* play(hh,ColorIn,Level)*/
-play(hc,b,Level):-
+play(ch,b,Level):-
   nl,
   announcePlayerTurn,
   tabuleiro1(Board),
-  displayBoard(Board,0),
+  %displayBoard(Board,0),
   toMove(Board,b, Board1),
   toCreateOrAdd(Board1,b, Board2),
   toEliminateStarvingAdaptoids(Board2,b, NewBoard),
   updateBoard(NewBoard).
 
-play(hc,p,Level-_):-
+play(ch,p,Level-_):-
   nl,
   announcePlayerTurn,
   tabuleiro1(Board),
-  displayBoard(Board,0),
+  %displayBoard(Board,0),
   computer(p, Level, Board, NewBoard),
   get_char(_),
   updateBoard(NewBoard).
@@ -75,16 +75,16 @@ play(cc,p,Level1-Level2):-
   nl,
   announcePlayerTurn,
   tabuleiro1(Board),
-  displayBoard(Board,0),
-  computer(ColorIn, Level1, Board, NewBoard),
+  %displayBoard(Board,0),
+  computer(p, Level1, Board, NewBoard),
   updateBoard(NewBoard).
 
 play(cc,b,Level1-Level2):-
   nl,
   announcePlayerTurn,
   tabuleiro1(Board),
-  displayBoard(Board,0),
-  computer(ColorIn, Level2, Board, NewBoard),
+  %displayBoard(Board,0),
+  computer(b, Level2, Board, NewBoard),
   updateBoard(NewBoard).
 
 toMove(Board, ColorIn, NewBoard):-

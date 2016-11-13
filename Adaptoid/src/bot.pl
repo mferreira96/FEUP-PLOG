@@ -1,17 +1,28 @@
 
 computer(Color, Mode, Board, FinalBoard):-
-    displayBoard(Board, 0),
+    %displayBoard(Board, 0),
     chooseBestMove(Board, Mode, Color, FinalBoard).
 
 
 chooseBestMove(Board, Move, Color, FinalBoard):-
-    findall(FinalBoard,computerMove(Board, Color, FinalBoard), PossibleMovements),
+    findall(FinalBoard,computerMove(Board, Color,R-C,FinalBoard), PossibleMovements),
     evaluateMove(Board, Color, Mode,PossibleMovements, FinalBoard).
 
-computerMove(Board, ColorIn, FinalBoard):-
-  toMove(Board,ColorIn, Board1),
-  toCreateOrAdd(Board1,ColorIn, Board2),
-  toEliminateStarvingAdaptoids(Board2,ColorIn, FinalBoard).
+computerMove(Board, ColorIn, R-C, FinalBoard):-
+  moveWithPossibleCapture(Board,R-C, Row-Column, NewBoard),
+  botUpdateAdaptoid(Color,R-C ,NewBoard, NewBoard1),
+  toEliminateStarvingAdaptoids(NewBoard1,ColorIn, FinalBoard).
+
+
+botUpdateAdaptoid(Color,R-C ,Board, NewBoard):-
+    createNewAdaptoid(Board, Color,R-C, NewBoard).
+
+botUpdateAdaptoid(Color,R-C ,Board, NewBoard):-
+    updateAdaptoid(Board, _, R-C,0, 1, NewBoard).
+
+botUpdateAdaptoid(Color,R-C ,Board, NewBoard):-
+    updateAdaptoid(Board, _, R-C,0, 1, NewBoard).
+
 
 evaluateMove(Board, Color, hard,PossibleMovements, FinalBoard):-
   sortPossibilities(PossibleMovements, FinalBoard).
