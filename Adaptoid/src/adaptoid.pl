@@ -5,7 +5,6 @@
 :- dynamic player/5.
 :- dynamic turnColor/1.
 
-
 :- include('board.pl').
 :- include('logic.pl').
 :- include('interface.pl').
@@ -18,48 +17,64 @@ turnColor(p).
 /* funçao principal do jogo*/
 
 adaptoid:-
-  retract(tabuleiro1(Board)),
-  retract(player(p,12,12,12,0)),
-  retract(player(b,12,12,12,0)),
-  retract(turnColor(p)),
+  tabuleiro1(Board),
+  assert(tabuleiro1(Board)),
+  assert(player(p,12,12,12,0)),
+  assert(player(b,12,12,12,0)),
+  assert(turnColor(p)),
+
   repeat,
-    once(play(Board, NewBoard, ColorIn)),
-    displayBoard(NewBoard,0),
-  assert(tabuleiro1(NewBoard)),
-  assert(player(p,_,_,_,_)),
-  assert(player(b,_,_,_,_)),
-  assert(turnColor(p)), fail.
+    turnColor(ColorIn),
+    once(play(ColorIn)),
+    getEnemyColor(ColorIn, ColorOut),
+    retract(turnColor(ColorIn)),
+    assert(turnColor(ColorOut)),
+    showScores,
+    tabuleiro1(NewBoard),
+    updateBoard(NewBoard),
+    testWinner(NewBoard,ColorIn),
+  retract(tabuleiro1(_)),
+  retract(player(p,_,_,_,_)),
+  retract(player(b,_,_,_,_)),
+  retract(turnColor(_)),
+  fail.
 
 
-play(Board, NewBoard, ColorIn):-
+
+play(ColorIn):-
   nl,
-  getEnemyColor(ColorIn, ColorOut),
+  announcePlayerTurn,
+  tabuleiro1(Board),
   displayBoard(Board,0),
-  toMove(Board,Player, Board1),
-  toCreateOrAdd(Board1,Player, Board2),
-  toEliminateStarvingAdaptoids(Board2,Player, NewBoard).
+  toMove(Board,ColorIn, Board1),
+  toCreateOrAdd(Board1,ColorIn, Board2),
+  toEliminateStarvingAdaptoids(Board2,ColorIn, NewBoard),
+  updateBoard(NewBoard).
 
-toMove(Board, Player, NewBoard):-
+toMove(Board, ColorIn, NewBoard):-
   write('move adaptoid'),nl,
   write('actual position of adaptoid'),nl,
   askCoords(R-C),
   write('Next position of adaptoid'),nl,
   askCoords(Row-Column),
   moveWithPossibleCapture(Board,R-C, Row-Column, NewBoard),
-  displayBoard(NewBoard,0).
+  displayBoard(NewBoard,0),
+  get_char(_).
 
 
-toCreateOrAdd(Board, Player, NewBoard):-
+toCreateOrAdd(Board, ColorIn, NewBoard):-
   write('choose your option'), nl,
   askOptionForSecondRule(Answer),
   secondRule(Answer, Board, NewBoard,p),
-  displayBoard(NewBoard,0).
+  displayBoard(NewBoard,0),
+  get_char(_).
 
 
-toEliminateStarvingAdaptoids(Board,Player,  NewBoard):-
-  getPlayerColor(Player, Color),
-  removeStarvingAdaptoids(Board, Color, NewBoard),
-  displayBoard(NewBoard,0).
+toEliminateStarvingAdaptoids(Board,ColorIn,  NewBoard):-
+  getEnemyColor(ColorIn, ColorOut),
+  removeStarvingAdaptoids(Board, ColorOut, NewBoard),
+  displayBoard(NewBoard,0),
+  get_char(_).
 
 secondRule(c, Board, NewBoard,Color):-
   write('choose the coords of the new '),nl,
@@ -91,23 +106,37 @@ askOptionForSecondRule(Answer):-
 
 % Result message
 
-winnerMessage(branco):- write('Jogador Branco é o vencedor!'),nl.
-winnerMessage(preto):- write('Jogador Preto é o vencedor!'),nl.
+winnerMessage(b):- write('Jogador Branco é o vencedor!'),nl.
+winnerMessage(p):- write('Jogador Preto é o vencedor!'),nl.
 winnerMessage(empate):- write('O jogo empatou!'),nl.
 
 % Result announcement (falta empate)
 
 testWinner(_, Color):-
-  player(Color,_,_,_Score),
-  Score > 4.
+  player(Color,_,_,_,Score),
+  Score > 4, !,
+  winnerMessage(Color).
 
 testWinner(Board, Color):-
   findall(R-C, getElement(Board,_,R-C,Color-_-_),Adaptoids),
-  Adaptoids = [].
+  Adaptoids = [],!,
+  winnerMessage(Color).
 
 
 % announce player turn
-announcePlayerTurn(Color):-write('Vez do jogador '),write(Color),nl.
+announcePlayerTurn:-
+  turnColor(Color),
+  write('Vez do jogador com a cor '),
+  write(Color),
+  nl.
+
+updatePlayer([Color,Body,Pincer, Leg, Score]):-
+  retract(player(Color,_,_,_,_)),
+  assert(player(Color, Body, Pincer, Leg, Score)).
+
+updateBoard(NewBoard):-
+    retract(tabuleiro1(_)),
+    assert(tabuleiro1(NewBoard)).
 
 getPlayerColor([Color,Body,Pincer, Leg, Score], Color).
 
@@ -117,4 +146,16 @@ updatePlayerScore(Points,[Color,Body,Pincer, Leg, Score], [Color,Body,Pincer, Le
   NewScore is Points + Score.
 
 getEnemyColor(p, b).
-getEnemyColor(b, p).    
+getEnemyColor(b, p).
+
+getPlayerByIsColor(Player, Color):-
+  player(Color,Body, Pincer, Leg, Score),
+  Player = [Color, Body, Pincer, Leg, Score].
+
+showScores:-
+    getPlayerByIsColor(Player,p),
+    getPlayerByIsColor(Enemy, b),
+    getPlayerScore(Player,Score1),
+    getPlayerScore(Enemy,Score2),
+    format('Score of Black player is ~d', [Score2]), nl,
+    format('Score of White player is ~d', [Score1]), nl.

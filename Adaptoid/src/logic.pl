@@ -57,8 +57,9 @@ getNumberOfExtremities(Board, R-C, Number):-
 /*Obtem o numero de pernas do Adaptoid
 getNuberOfLegs(+Adaptoid, -Legs)*/
 
-getNuberOfLegs(C-L-P, Legs):-
-  Legs is L.
+getNuberOfLegs(C-L-P, L).
+
+getColorOfAdpatoid(C-L-P, C).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%% Adaptoid moves %%%%%%%%
@@ -157,14 +158,12 @@ celulas vizinhas vazias*/
 removeStarvingAdaptoids(Board, Color, NewBoard):-
   findall(R-C, getElement(Board,_,R-C, Color-_-_ ), Adaptoids),
   length(Adaptoids, Tamanho),
-  format('Adaptoids -- ~d',[Tamanho]),nl,
   captureStarvingAdaptoid(Adaptoids, Board, NewBoard).
 
 captureStarvingAdaptoid([], Board, Board).
 captureStarvingAdaptoid([R-C|Rest], Board, NewBoard):-
   findall(NR-NC, empetyNeighbour(Board, R-C, NR-NC), Neighbours),
   length(Neighbours, NumOfNeighbours),
-  format('tamanho ~d', [NumOfNeighbours]),nl ,
   getNumberOfExtremities(Board, R-C, NumberOfExtremities),
   captureAdaptoid(Board,TempBoard, R-C, NumOfNeighbours, NumberOfExtremities),
   captureStarvingAdaptoid(Rest, TempBoard, NewBoard).
@@ -172,7 +171,8 @@ captureStarvingAdaptoid([R-C|Rest], Board, NewBoard):-
 
 captureAdaptoid(Board,NewBoard, R-C, NumOfNeighbours, NumberOfExtremities):-
   NumberOfExtremities > NumOfNeighbours,
-  format('extremiites ~d Neighbours ~d', [NumberOfExtremities,NumOfNeighbours]),
+  turnColor(Color),
+  updatePlayerOnCapture(Color),
   removeAdaptoid(Board,_, R-C, NewBoard).
 
 captureAdaptoid(Board,Board, _, NumOfNeighbours, NumberOfExtremities):-
@@ -216,15 +216,35 @@ createNewAdaptoid(Board, Color,R-C, NewBoard):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%% PATH %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+updatePlayerOnCapture(Color):-
+  getPlayerByIsColor(PlayerIn , Color),
+  updatePlayerScore(1,PlayerIn, PlayerOut),
+  updatePlayer(PlayerOut).
+
+moveWithPossibleCaptureAux(1, Winners,NewBoard, NewestBoard,FinalRow-FinalColumn):-
+  nth0(0,Winners, Winner),
+  getColorOfAdpatoid(Winner,Color),
+  updatePlayerOnCapture(Color),
+  setMatrixElement(FinalRow, FinalColumn, Winner, NewBoard, NewestBoard).
+
+moveWithPossibleCaptureAux(2, Winners,NewBoard, NewestBoard,FinalRow-FinalColumn):-
+  nth0(0,Winners, Winner),
+  getColorOfAdpatoid(Winner,Color),
+  updatePlayerOnCapture(Color),
+  nth0(1,Winners, Winner1),
+  getColorOfAdpatoid(Winner1,Color1),
+  updatePlayerOnCapture(Color1),
+  setMatrixElement(FinalRow, FinalColumn, vazio, NewBoard, NewestBoard).
+
 
 moveWithPossibleCapture(Board,StartRow-StartCol, FinalRow-FinalColumn, NewestBoard):-
   getElement(Board, _ , StartRow-StartCol, C-L-P),!,
   findPath(Board,StartRow-StartCol, FinalRow-FinalColumn,L, NewBoard),
   getElement(Board, _ , FinalRow-FinalColumn, Element),
   compareAdaptoids(C-L-P, Element, Winners),
-  nth0(0,Winners, Winner),
   removeAdaptoid(Board,_, StartRow-StartCol, NewBoard),
-  setMatrixElement(FinalRow, FinalColumn, Winner, NewBoard, NewestBoard).
+  length(Winners, SizeOfWinners),
+  moveWithPossibleCaptureAux(SizeOfWinners, Winners,NewBoard, NewestBoard,FinalRow-FinalColumn).
 
 findPath(Board,StartRow-StartCol, FinalRow-FinalColumn, DistMax, NewBoard):-
   getElement(Board, _ , StartRow-StartCol, C-_-_),
