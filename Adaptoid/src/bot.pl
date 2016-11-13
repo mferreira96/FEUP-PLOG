@@ -8,9 +8,9 @@ chooseBestMove(Board, Move, Color, FinalBoard):-
     evaluateMove(Board, Color, Mode,PossibleMovements, FinalBoard).
 
 computerMove(Board, ColorIn, R-C, FinalBoard):-
-  moveWithPossibleCapture(Board,R-C, Row-Column, NewBoard),
-  botUpdateAdaptoid(Color,R-C ,NewBoard, NewBoard1),
-  toEliminateStarvingAdaptoids(Board,ColorIn, FinalBoard).
+  moveWithPossibleCapture(Board,R-C, Row-Column, NewBoard, PlayerOut),
+  botUpdateAdaptoid(ColorIn,R-C ,NewBoard, FinalBoard1),
+  toEliminateStarvingAdaptoids(FinalBoard1,ColorIn, FinalBoard).
 
 
 botUpdateAdaptoid(Color,R-C ,Board, NewBoard):-
@@ -102,7 +102,6 @@ starvingAux([R-C|Rest], Board, Count):-
   checkIfAdaptoidIsHungry( NumberOfExtremities, NumOfNeighbours, Answer),
   starvingAux(Rest,Board,Number),
   Count is Number + Answer.
-  
 
 checkIfAdaptoidIsHungry( NumberOfExtremities, NumOfNeighbours, 1):-
   NumberOfExtremities > NumOfNeighbours.

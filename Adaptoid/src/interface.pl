@@ -6,16 +6,12 @@ exit.
 startMenu:- clearScreen,
   write('Choose one of the follow options'), nl,
   write('1 - Play'), nl,
-  write('2 - Tuturial'),nl,
-  write('3 - About'), nl,
-  write('4 - Exit'),nl,
+  write('2 - Exit'),nl,
   nl,
   write('Press Enter to continue'),nl,
   get_char(Answer),
   (Answer = '1' -> play;
-   Answer = '2' -> tuturialMenu;
-   Answer = '3' -> aboutMenu;
-   Answer = '4' -> exit;
+   Answer = '2' -> exit;
    startMenu).
 
 %  fazer o switch case aqui
