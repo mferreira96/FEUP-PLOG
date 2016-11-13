@@ -1,5 +1,6 @@
 :- use_module(library(system)).
 :- use_module(library(lists)).
+:- use_module(library(random)).
 
 :- dynamic tabuleiro1/1.
 :- dynamic player/5.
@@ -8,10 +9,7 @@
 :- include('board.pl').
 :- include('logic.pl').
 :- include('interface.pl').
-
-player(p,12,12,12,0).
-player(b,12,12,12,0).
-turnColor(p).
+:- include('bot.pl').
 
 
 /* funçao principal do jogo*/
@@ -33,11 +31,11 @@ adaptoid:-
     tabuleiro1(NewBoard),
     updateBoard(NewBoard),
     testWinner(NewBoard,ColorIn),
+
   retract(tabuleiro1(_)),
   retract(player(p,_,_,_,_)),
   retract(player(b,_,_,_,_)),
-  retract(turnColor(_)),
-  fail.
+  retract(turnColor(_)).
 
 
 
@@ -128,7 +126,8 @@ announcePlayerTurn:-
   turnColor(Color),
   write('Vez do jogador com a cor '),
   write(Color),
-  nl.
+  nl,
+  get_char(_).
 
 updatePlayer([Color,Body,Pincer, Leg, Score]):-
   retract(player(Color,_,_,_,_)),
