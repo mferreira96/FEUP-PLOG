@@ -1,17 +1,16 @@
 
 computer(Color, Mode, Board, FinalBoard):-
-    %displayBoard(Board, 0),
     chooseBestMove(Board, Mode, Color, FinalBoard).
 
 
 chooseBestMove(Board, Move, Color, FinalBoard):-
-    findall(FinalBoard,computerMove(Board, Color,R-C,FinalBoard), PossibleMovements),
+    findall(TempBoard,computerMove(Board, Color,R-C,TempBoard), PossibleMovements),
     evaluateMove(Board, Color, Mode,PossibleMovements, FinalBoard).
 
 computerMove(Board, ColorIn, R-C, FinalBoard):-
   moveWithPossibleCapture(Board,R-C, Row-Column, NewBoard),
   botUpdateAdaptoid(Color,R-C ,NewBoard, NewBoard1),
-  toEliminateStarvingAdaptoids(NewBoard1,ColorIn, FinalBoard).
+  toEliminateStarvingAdaptoids(Board,ColorIn, FinalBoard).
 
 
 botUpdateAdaptoid(Color,R-C ,Board, NewBoard):-
@@ -21,7 +20,7 @@ botUpdateAdaptoid(Color,R-C ,Board, NewBoard):-
     updateAdaptoid(Board, _, R-C,0, 1, NewBoard).
 
 botUpdateAdaptoid(Color,R-C ,Board, NewBoard):-
-    updateAdaptoid(Board, _, R-C,0, 1, NewBoard).
+    updateAdaptoid(Board, _, R-C,1, 0, NewBoard).
 
 
 evaluateMove(Board, Color, hard,PossibleMovements, FinalBoard):-
@@ -43,23 +42,23 @@ sortAux([Possible| Rest], Color, TempBoard, FinalBoard, Max):-
 
 
 updateAux(PossibleBoard,TempBoard, FinalTempBoard, Max, TempMax, Total):-
-    Max > Tolal,
-    TempMax is Max,
-    FinalTempBoard is TempBoard.
+    Max > Total,
+    TempMax = Max,
+    FinalTempBoard = TempBoard.
 
 updateAux(PossibleBoard,TempBoard, FinalTempBoard, Max, TempMax, Total):-
-    Max < Tolal,
-    TempMax is Total,
-    FinalTempBoard is PossibleBoard.
+    Max < Total,
+    TempMax = Total,
+    FinalTempBoard = PossibleBoard.
 
 
 getValueOfLegs(Board,Color,ValueLegs, Value):-
     getTotalNumberOfLegs(Board, Color, Legs),
     ValueLegs is Value * Legs.
 
-getValueOfLegs(Board,Color,ValuePincers, Value):-
+getValueOfPincers(Board,Color,ValuePincers, Value):-
     getTotalNumberOfPincers(Board, Color,Pincers),
-    ValuePicers is Value * Pincers.
+    ValuePincers is Value * Pincers.
 
 getValueOfAdaptoids(Board, Color, ValueAdaptoids, Value):-
     getNumberOfAdaptoidsFromTheSameplayer(Board, Color,NumberOfAdaptoids),
@@ -72,39 +71,46 @@ getValueOfStarvingAdaptoids(Board, Color, ValueOfStarvingAdaptoids, Value):-
 
 
 value(Board, Color, Total):-
-    getTotalNumberOfLegs(Board,Color,Value1, 1),
-    getTotalNumberOfPincers(Board,Color,Value2, 2),
+    getValueOfLegs(Board,Color,Value1, 1),
+    getValueOfPincers(Board,Color,Value2, 2),
     getValueOfAdaptoids(Board, Color, Value3, 3),
     getValueOfStarvingAdaptoids(Board, Color, Value4, 4),
-    sumList([Value1,Value2, Value3,Value4], Total).
+    list_sum([Value1,Value2, Value3,Value4], Total).
 
 getTotalNumberOfLegs(Board, Color, TotalNumberOfLegs):-
-  findall(L, getElement(Board, _,R-C,Color-L-_), Total),
-  sumList(Total, TotalNumberOfLegs).
+  findall(L, getElement(Board,_,R-C,Color-L-_), Total),
+  list_sum(Total, TotalNumberOfLegs).
 
 getTotalNumberOfPincers(Board, Color, TotalNumberOfLegs):-
   findall(P, getElement(Board, _,R-C,Color-_-P), Total),
-  sumList(Total, TotalNumberOfLegs).
+  list_sum(Total, TotalNumberOfLegs).
 
 getNumberOfAdaptoidsFromTheSameplayer(Board,Color,NumberOfAdaptoids):-
   findall(Number, getElement(Board, _,R-C,Color-_-_), Total),
   length(Total, NumberOfAdaptoids).
 
 
-getNumberOfStarvingAdaptoids(Board,Color, NumberOfStarvingAdaptoids).
-  findall(R-C, starving(Board, Color, R-C), Adaptoids),
-  length(Adaptoids, NumberOfStarvingAdaptoids).
+getNumberOfStarvingAdaptoids(Board, Color, Count):-
+  findall(R-C, getElement(Board,_,R-C, Color-_-_ ), Adaptoids),
+  starvingAux(Adaptoids, Board, Count).
 
-
-starving(Board, Color, R-C):-
-  getElement(Board,_,R-C, Color,_,_),!,
+starvingAux([], _, 0).
+starvingAux([R-C|Rest], Board, Count):-
   findall(NR-NC, empetyNeighbour(Board, R-C, NR-NC), Neighbours),
   length(Neighbours, NumOfNeighbours),
-  getNumberOfExtremities(Board, R-C,NumberOfExtremities),
+  getNumberOfExtremities(Board, R-C, NumberOfExtremities),
+  checkIfAdaptoidIsHungry( NumberOfExtremities, NumOfNeighbours, Answer),
+  starvingAux(Rest,Board,Number),
+  Count is Number + Answer.
+  
+
+checkIfAdaptoidIsHungry( NumberOfExtremities, NumOfNeighbours, 1):-
   NumberOfExtremities > NumOfNeighbours.
 
+checkIfAdaptoidIsHungry( NumberOfExtremities, NumOfNeighbours, 0):-
+  NumberOfExtremities =< NumOfNeighbours.
 
-  list_sum([], 0).
-  list_sum([Head | Tail], TotalSum) :-
-      list_sum(Tail, Sum1),
-      Total is Head + Sum1.
+list_sum([],0).
+list_sum([Head|Tail],Result) :-
+    list_sum(Tail,SumOfTail),
+    Result is Head + SumOfTail.

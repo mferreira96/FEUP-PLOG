@@ -16,6 +16,9 @@
 adaptoid:-
   startMenu.
 
+teste:-
+  tabuleiro1(X),
+  value(X,p, Total).
 
 
 game(Mode, Difficult):-
@@ -25,14 +28,14 @@ game(Mode, Difficult):-
   assert(player(b,12,12,12,0)),
   assert(turnColor(p)),
   repeat,
+    write('please press Enter'),
+    get_code(_),
     turnColor(ColorIn),
     once(play(Mode, ColorIn, Difficult)),
     getEnemyColor(ColorIn, ColorOut),
     retract(turnColor(ColorIn)),
     assert(turnColor(ColorOut)),
     showScores,
-    tabuleiro1(NewBoard), % verificar se e necesssario
-    updateBoard(NewBoard),
     testWinner(NewBoard,ColorIn),
 
   retract(tabuleiro1(_)),
@@ -51,7 +54,7 @@ play(hh,ColorIn, _):-
   updateBoard(NewBoard).
 
 /* play(hh,ColorIn,Level)*/
-play(ch,b,Level):-
+play(ch,b,_):-
   nl,
   announcePlayerTurn,
   tabuleiro1(Board),
@@ -67,23 +70,24 @@ play(ch,p,Level-_):-
   tabuleiro1(Board),
   %displayBoard(Board,0),
   computer(p, Level, Board, NewBoard),
-  get_char(_),
+  write('wuadadf'),
+  get_code(_),
   updateBoard(NewBoard).
 
 
-play(cc,p,Level1-Level2):-
+play(cc,p,Level1-_):-
   nl,
   announcePlayerTurn,
   tabuleiro1(Board),
-  %displayBoard(Board,0),
+  displayBoard(Board,0),
   computer(p, Level1, Board, NewBoard),
   updateBoard(NewBoard).
 
-play(cc,b,Level1-Level2):-
+play(cc,b,_-Level2):-
   nl,
   announcePlayerTurn,
   tabuleiro1(Board),
-  %displayBoard(Board,0),
+  displayBoard(Board,0),
   computer(b, Level2, Board, NewBoard),
   updateBoard(NewBoard).
 
@@ -93,8 +97,9 @@ toMove(Board, ColorIn, NewBoard):-
   askCoords(R-C),
   write('Next position of adaptoid'),nl,
   askCoords(Row-Column),
-  moveWithPossibleCapture(Board,R-C, Row-Column, NewBoard),
-  displayBoard(NewBoard,0),
+  moveWithPossibleCapture(Board,R-C, Row-Column, NewBoard, PlayerOut),
+  updatePlayer(PlayerOut),
+  %displayBoard(NewBoard,0),
   get_char(_).
 
 
@@ -102,14 +107,15 @@ toCreateOrAdd(Board, ColorIn, NewBoard):-
   write('choose your option'), nl,
   askOptionForSecondRule(Answer),
   secondRule(Answer, Board, NewBoard,p),
-  displayBoard(NewBoard,0),
+  %displayBoard(NewBoard,0),
   get_char(_).
 
 
 toEliminateStarvingAdaptoids(Board,ColorIn,  NewBoard):-
   getEnemyColor(ColorIn, ColorOut),
-  removeStarvingAdaptoids(Board, ColorOut, NewBoard),
-  displayBoard(NewBoard,0),
+  removeStarvingAdaptoids(Board, ColorOut, NewBoard, PlayerOut),
+  updatePlayer(PlayerOut),
+  %displayBoard(NewBoard,0),
   get_char(_).
 
 secondRule(c, Board, NewBoard,Color):-
@@ -142,11 +148,11 @@ askOptionForSecondRule(Answer):-
 
 % Result message
 
-winnerMessage(b):- write('Jogador Branco é o vencedor!'),nl.
-winnerMessage(p):- write('Jogador Preto é o vencedor!'),nl.
+winnerMessage(b):- write('Jogador Branco e o vencedor!'),nl.
+winnerMessage(p):- write('Jogador Preto e o vencedor!'),nl.
 winnerMessage(empate):- write('O jogo empatou!'),nl.
 
-% Result announcement (falta empate)
+
 
 testWinner(_, Color):-
   player(Color,_,_,_,Score),
@@ -164,8 +170,7 @@ announcePlayerTurn:-
   turnColor(Color),
   write('Vez do jogador com a cor '),
   write(Color),
-  nl,
-  get_char(_).
+  nl.
 
 updatePlayer([Color,Body,Pincer, Leg, Score]):-
   retract(player(Color,_,_,_,_)),

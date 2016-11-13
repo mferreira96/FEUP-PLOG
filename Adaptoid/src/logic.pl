@@ -155,27 +155,28 @@ empetyNeighbour(Board,R-C , NeighbourRow-NeghbourColumn):-
 /*elimina os Adaptoids que estao esfomeados,ou seja, que o numero de extremidades do mesmo e superior ao numero de
 celulas vizinhas vazias*/
 
-removeStarvingAdaptoids(Board, Color, NewBoard):-
+removeStarvingAdaptoids(Board, Color, NewBoard, PlayerOut):-
   findall(R-C, getElement(Board,_,R-C, Color-_-_ ), Adaptoids),
   length(Adaptoids, Tamanho),
-  captureStarvingAdaptoid(Adaptoids, Board, NewBoard).
+  turnColor(AuxColor),
+  getPlayerByIsColor(PlayerIn, AuxColor),
+  captureStarvingAdaptoid(Adaptoids, Board, NewBoard, PlayerIn, PlayerOut).
 
-captureStarvingAdaptoid([], Board, Board).
-captureStarvingAdaptoid([R-C|Rest], Board, NewBoard):-
+captureStarvingAdaptoid([], Board, Board,_,_).
+captureStarvingAdaptoid([R-C|Rest], Board, NewBoard,PlayerIn, PlayerOut):-
   findall(NR-NC, empetyNeighbour(Board, R-C, NR-NC), Neighbours),
   length(Neighbours, NumOfNeighbours),
   getNumberOfExtremities(Board, R-C, NumberOfExtremities),
-  captureAdaptoid(Board,TempBoard, R-C, NumOfNeighbours, NumberOfExtremities),
-  captureStarvingAdaptoid(Rest, TempBoard, NewBoard).
+  captureAdaptoid(Board,TempBoard, R-C, NumOfNeighbours, NumberOfExtremities, PlayerIn, TempPlayerOut),
+  captureStarvingAdaptoid(Rest, TempBoard, NewBoard, TempPlayerOut, PlayerOut).
 
 
-captureAdaptoid(Board,NewBoard, R-C, NumOfNeighbours, NumberOfExtremities):-
+captureAdaptoid(Board,NewBoard, R-C, NumOfNeighbours, NumberOfExtremities, PlayerIn, PlayerOut):-
   NumberOfExtremities > NumOfNeighbours,
-  turnColor(Color),
-  updatePlayerOnCapture(Color),
+  updatePlayerOnCapture(PlayerIn, PlayerOut),
   removeAdaptoid(Board,_, R-C, NewBoard).
 
-captureAdaptoid(Board,Board, _, NumOfNeighbours, NumberOfExtremities):-
+captureAdaptoid(Board,Board, _, NumOfNeighbours, NumberOfExtremities, PlayerIn, PlayerOut):-
     NumberOfExtremities =< NumOfNeighbours.
 
 /*da nos as coordenadas das celulas vizinhas
@@ -216,35 +217,39 @@ createNewAdaptoid(Board, Color,R-C, NewBoard):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%% PATH %%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-updatePlayerOnCapture(Color):-
+/*updatePlayerOnCapture(Color):-
   getPlayerByIsColor(PlayerIn , Color),
   updatePlayerScore(1,PlayerIn, PlayerOut),
-  updatePlayer(PlayerOut).
+  updatePlayer(PlayerOut).*/
 
-moveWithPossibleCaptureAux(1, Winners,NewBoard, NewestBoard,FinalRow-FinalColumn):-
+updatePlayerOnCapture(PlayerIn, PlayerOut):-
+  updatePlayerScore(1,PlayerIn, PlayerOut).
+
+moveWithPossibleCaptureAux(1, Winners,NewBoard, NewestBoard,FinalRow-FinalColumn,Player, PlayerOut):-
   nth0(0,Winners, Winner),
   getColorOfAdpatoid(Winner,Color),
-  updatePlayerOnCapture(Color),
+  updatePlayerOnCapture(Player, PlayerOut),
   setMatrixElement(FinalRow, FinalColumn, Winner, NewBoard, NewestBoard).
 
-moveWithPossibleCaptureAux(2, Winners,NewBoard, NewestBoard,FinalRow-FinalColumn):-
+moveWithPossibleCaptureAux(2, Winners,NewBoard, NewestBoard,FinalRow-FinalColumn,Player, PlayerOut):-
   nth0(0,Winners, Winner),
   getColorOfAdpatoid(Winner,Color),
-  updatePlayerOnCapture(Color),
+  updatePlayerOnCapture(Player, Player2),
   nth0(1,Winners, Winner1),
   getColorOfAdpatoid(Winner1,Color1),
-  updatePlayerOnCapture(Color1),
+  updatePlayerOnCapture(Player2, PlayerOut),
   setMatrixElement(FinalRow, FinalColumn, vazio, NewBoard, NewestBoard).
 
 
-moveWithPossibleCapture(Board,StartRow-StartCol, FinalRow-FinalColumn, NewestBoard):-
+moveWithPossibleCapture(Board,StartRow-StartCol, FinalRow-FinalColumn, NewestBoard, PlayerOut):-
   getElement(Board, _ , StartRow-StartCol, C-L-P),!,
   findPath(Board,StartRow-StartCol, FinalRow-FinalColumn,L, NewBoard),
   getElement(Board, _ , FinalRow-FinalColumn, Element),
   compareAdaptoids(C-L-P, Element, Winners),
   removeAdaptoid(Board,_, StartRow-StartCol, NewBoard),
   length(Winners, SizeOfWinners),
-  moveWithPossibleCaptureAux(SizeOfWinners, Winners,NewBoard, NewestBoard,FinalRow-FinalColumn).
+  getPlayerByIsColor(PlayerIn , Color),
+  moveWithPossibleCaptureAux(SizeOfWinners, Winners,NewBoard, NewestBoard,FinalRow-FinalColumn, PlayerIn, PlayerOut).
 
 findPath(Board,StartRow-StartCol, FinalRow-FinalColumn, DistMax, NewBoard):-
   getElement(Board, _ , StartRow-StartCol, C-_-_),
