@@ -1,9 +1,16 @@
 :- use_module(library(lists)).
 
-translate(vazio, ' ').
+translate(vazio, '  ').
 translate(cheio, 'X').
-
-
+translate(1, '1').
+translate(2, '2').
+translate(3, '3').
+translate(4, '4').
+translate(5, '5').
+translate(6, '6').
+translate(7, '7').
+translate(8, '8').
+translate(10, '10').
 
 
 displayTop(0) :- nl.
@@ -13,21 +20,24 @@ displayTop(Counter) :-
       write(' --'),
       displayTop(Counter1).
 
-displayMid(0) :- nl.
-displayMid(Counter) :-
+displayMid(0,_) :- write('|'), nl.
+displayMid(Counter, List) :-
       Counter > 0,
       Counter1 is Counter - 1,
-      write('|  '),
-      displayMid(Counter1).
+      nth0(Counter1, List, Element),
+      translate(Element, NewElement),
+      write('|'),
+      write(NewElement),
+      displayMid(Counter1, List).
 
-displayBoard(0,Tamanho):-displayTop(Tamanho).
-displayBoard(N,Tamanho):-
+displayBoard(0,Tamanho, _):-displayTop(Tamanho).
+displayBoard(N,Tamanho,Board):-
       N1 is N-1,
       Mid is Tamanho+1,
       displayTop(Tamanho),
-      displayMid(Mid),
-      displayMid(Mid),
-      displayBoard(N1,Tamanho).
+      nth0(N1, Board, List),
+      displayMid(Tamanho, List),
+      displayBoard(N1,Tamanho, Board).
 
 fillList(0,_,[]).
 fillList(N,X,[X|Xs]) :-
@@ -35,16 +45,16 @@ fillList(N,X,[X|Xs]) :-
       N1 is N-1,
       fillList(N1,X,Xs).
 
-createBoard(_, 0,[]).
-createBoard(Tamanho,Counter,[X|Xs]):-
+createBoard(_, 0,Board, Board).
+createBoard(Tamanho,Counter,Board, NewBoard):-
     Counter > 0,
     Counter1 is Counter - 1,
-    fillList(Tamanho,vazio,X),
-    createBoard(Tamanho, Counter1, Xs, NewBoard).
+    fillList(Tamanho,vazio,FilledList),
+    append(Board,[FilledList], Board1),
+    createBoard(Tamanho, Counter1,Board1, NewBoard).
 
-    // melhor utilizar append
 
 
 teste(Tamanho):-
-    createBoard(Tamanho, Tamanho, Board),
-    format('~w ', [Board]), nl.
+    createBoard(Tamanho, Tamanho, [], NewBoard),
+    displayBoard(Tamanho, Tamanho, NewBoard).
