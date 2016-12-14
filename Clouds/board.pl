@@ -1,16 +1,8 @@
 :- use_module(library(lists)).
 
-translate(vazio, '  ').
-translate(cheio, 'X').
-translate(1, '1').
-translate(2, '2').
-translate(3, '3').
-translate(4, '4').
-translate(5, '5').
-translate(6, '6').
-translate(7, '7').
-translate(8, '8').
-translate(10, '10').
+translate(0, '  ').
+translate(1, 'X').
+translate(none , '  ').
 
 
 displayTop(0) :- nl.
@@ -49,7 +41,7 @@ createBoard(_, 0,Board, Board).
 createBoard(Tamanho,Counter,Board, NewBoard):-
     Counter > 0,
     Counter1 is Counter - 1,
-    fillList(Tamanho,vazio,FilledList),
+    fillList(Tamanho,0,FilledList),
     append(Board,[FilledList], Board1),
     createBoard(Tamanho, Counter1,Board1, NewBoard).
 
