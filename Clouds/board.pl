@@ -1,8 +1,7 @@
 :- use_module(library(lists)).
 
 translate(0, '  ').
-translate(1, 'X').
-translate(none , '  ').
+translate(1, ' X').
 
 
 displayTop(0) :- nl.
@@ -12,24 +11,38 @@ displayTop(Counter) :-
       write(' --'),
       displayTop(Counter1).
 
-displayMid(0,_) :- write('|'), nl.
-displayMid(Counter, List) :-
+displayMid(0,_, NumberOfLine,ClueVertical) :-
+      write('|'),
+      nth0(NumberOfLine, ClueVertical, Clue),
+      write(Clue),
+      nl.
+displayMid(Counter, List,NumberOfLine, ClueVertical) :-
       Counter > 0,
       Counter1 is Counter - 1,
       nth0(Counter1, List, Element),
       translate(Element, NewElement),
       write('|'),
       write(NewElement),
-      displayMid(Counter1, List).
+      displayMid(Counter1, List,NumberOfLine,ClueVertical).
 
-displayBoard(0,Tamanho, _):-displayTop(Tamanho).
-displayBoard(N,Tamanho,Board):-
+
+displayBoardAux([]).
+displayBoardAux([Clue|Rest]):-
+  write('  '),
+  write(Clue),
+  displayBoardAux(Rest).
+
+displayBoard(0,Tamanho, _, _, ClueHorizontal):-
+  displayTop(Tamanho),
+  displayBoardAux(ClueHorizontal).
+
+
+displayBoard(N,Tamanho,Board, ClueVertical, ClueHorizontal):-
       N1 is N-1,
-      Mid is Tamanho+1,
       displayTop(Tamanho),
       nth0(N1, Board, List),
-      displayMid(Tamanho, List),
-      displayBoard(N1,Tamanho, Board).
+      displayMid(Tamanho, List,N1, ClueVertical),
+      displayBoard(N1,Tamanho, Board,ClueVertical, ClueHorizontal).
 
 fillList(0,_,[]).
 fillList(N,X,[X|Xs]) :-
@@ -46,7 +59,8 @@ createBoard(Tamanho,Counter,Board, NewBoard):-
     createBoard(Tamanho, Counter1,Board1, NewBoard).
 
 
-
+/*
 teste(Tamanho):-
     createBoard(Tamanho, Tamanho, [], NewBoard),
     displayBoard(Tamanho, Tamanho, NewBoard).
+*/

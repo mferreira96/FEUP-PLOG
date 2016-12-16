@@ -12,7 +12,11 @@ solver(Line_Clues, Column_Clues, SolvedBoard):-
 
   transpose(SolvedBoard,SolvedBoard_Inveted),
 
-  checkLines(SolvedBoard_Inveted, Column_Clues).
+  checkLines(SolvedBoard_Inveted, Column_Clues),
+
+  append(SolvedBoard,Vars),
+
+  labeling([],Vars).
 
   % at this point we already make that the sum is equal to the clues
 
@@ -38,6 +42,7 @@ checkLines([Line|Rest],[Clue|Others]):-
   checkLines(Rest, Others).
 
 %verify if sum of the Elements of list is equal to clue
+checkSum(_, 0):- !.
 checkSum(Line, Clue):-
-  Clue \= none, !,
+  Clue \= 0, !,
   sum(Line, #=,Clue).
