@@ -24,6 +24,12 @@ solver(Line_Clues, Column_Clues, SolvedBoard):-
   % -> cloud must be at least 2 x 2
   % -> should have a white space between clouds
 
+%Get an element based on coords from a 2d list
+getBoardElem(1-Col,[H|_],Color):- nth1(Col,H,Color).
+getBoardElem(Line-Col,[_|Hs],Color):-
+        Line > 1,
+        Line1 is Line - 1,
+        getBoardElem(Line1-Col,Hs,Color).
 
 
 
