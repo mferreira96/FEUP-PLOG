@@ -16,7 +16,13 @@ solver(Line_Clues, Column_Clues, SolvedBoard):-
 
   append(SolvedBoard,Vars),
 
-  labeling([],Vars).
+  reset_timer,
+
+  labeling([],Vars),
+
+  print_time,
+  fd_statistics.
+
 
   % at this point we already make that the sum is equal to the clues
 
@@ -52,3 +58,13 @@ checkSum(_, 0):- !.
 checkSum(Line, Clue):-
   Clue \= 0, !,
   sum(Line, #=,Clue).
+
+
+
+%% STATISTICS %%%
+
+reset_timer :- statistics(walltime,_).
+print_time :-
+	statistics(walltime,[_,T]),
+	TS is ((T//10)*10)/1000,
+	nl, write('Time: '), write(TS), write('s'), nl, nl.
