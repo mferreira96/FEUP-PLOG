@@ -13,9 +13,11 @@ displayTop(Counter) :-
 
 displayMid(0,_, NumberOfLine,ClueVertical) :-
       write('|'),
-      nth0(NumberOfLine, ClueVertical, Clue),
+      reverse(ClueVertical, ReverseList),
+      nth0(NumberOfLine, ReverseList, Clue),
       write(Clue),
       nl.
+
 displayMid(Counter, List,NumberOfLine, ClueVertical) :-
       Counter > 0,
       Counter1 is Counter - 1,
