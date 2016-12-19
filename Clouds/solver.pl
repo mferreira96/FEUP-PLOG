@@ -82,9 +82,18 @@ checkClouds(Lines, Cols, NLines - NCols, LineIndex-ColIndex):-
 
 checkIfIsFirst(0 - 0, Matrix, IsFirst):-
   %caso seja o primeiro
+  getBoardElem(0-0,Matrix,House),
+  (House #= 1) #<=> IsFirst.
+
 
 checkIfIsFirst(LineIndex - 0, Matrix, IsFirst):-
   % caso esteja na primeira coluna e na tenha mais nada por cima pintado
+  LineIndex > 0,
+
+  AuxLine is LineIndex - 1,
+  getBoardElem(LineIndex - 0,Matrix, House),
+  getBoardElem(AuxLine - 0,Matrix, UpHouse),
+  ((House #= 1) #/\ (UpHouse #= 0)) #<=> IsFirst.
 
 
 checkIfIsFirst(LineIndex - ColIndex, Matrix, IsFirst):-
