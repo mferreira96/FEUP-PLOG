@@ -1,7 +1,5 @@
- :-include('board.pl').
-:-include('solver.pl').
-       
-        
+:- use_module(library(clpfd)).       
+
 generator(Nlines,Ncols,Llines,Lcols,Lfinal):-
         length(Llines,Nlines),
         length(Lcols,Ncols),
@@ -10,4 +8,3 @@ generator(Nlines,Ncols,Llines,Lcols,Lfinal):-
         labeling([],Llines),
         labeling([],Lcols),
         append(Llines,Lcols,Lfinal).
-        
