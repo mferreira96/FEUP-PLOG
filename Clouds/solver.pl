@@ -36,8 +36,6 @@ getBoardElem(LineIndex-ColIndex,Matrix,Color):-
    nth0(ColIndex,Line,Color).
 
 
-
-
 % create matrix with the right size
 createMatrix([],_).
 createMatrix([Line|Ls],NCols):-
@@ -96,6 +94,13 @@ checkIfIsFirst(LineIndex - ColIndex, Matrix, IsFirst):-
     AuxLine is LineIndex - 1,
     AuxCol is ColIndex - 1,
 
+    getBoardElem(LineIndex-ColIndex,Matrix,House),
+    getBoardElem(AuxLine-ColIndex,Matrix,UpHouse),
+    getBoardElem(LineIndex-AuxCol,Matrix,LeftHouse),
+    getBoardElem(AuxLine-AuxCol,Matrix,DiagonalHouse),
+
+    %% this way i can verify if the current house is the first when i look for it fromthe left to the right...up ..down
+    ((House #= 1) #/\ (UpHouse #= 0) #/\ (LeftHouse #= 0) #/\ (DiagonalHouse #= 0)) #<=> IsFirst.
 
 %% verify if the cloud as the proper  size
 checkIfCloudIsCorrect(Lines, Cols,NLines - Ncols, LineIndex-ColIndex, Correct).
