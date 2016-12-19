@@ -14,6 +14,8 @@ solver(Line_Clues, Column_Clues, SolvedBoard):-
 
   checkLines(SolvedBoard_Inverted, Column_Clues),
 
+  checkClouds(SolvedBoard_Inverted, SolvedBoard_Inverted, NLines-NCols, 0-0),
+
   append(SolvedBoard_Inverted,Vars),
 
   reset_timer,
@@ -33,7 +35,7 @@ solver(Line_Clues, Column_Clues, SolvedBoard):-
 %Get an element based on coords from a 2d list
 getBoardElem(LineIndex-ColIndex,Matrix,Color):-
    nth0(LineIndex, Matrix, Line)
-   nth0(ColIndex,Line,Color).
+   nth0(ColIndex,Line,Color), !.
 
 
 % create matrix with the right size
@@ -72,6 +74,8 @@ checkClouds(Lines, Cols, NLines - NCols, LineIndex-ColIndex):-
   checkIfIsFirst(Lines, LineIndex-ColIndex,IsFirst),
 
   checkIfCloudIsCorrect(Lines, Cols,NLines - Ncols, LineIndex-ColIndex, Correct),
+
+  IsFirst #<=> Correct.
 
   AuxCol is ColIndex + 1,
   checkClouds(Lines, Cols, NLines-NCols, LineIndex-AuxCol).
@@ -112,7 +116,45 @@ checkIfIsFirst(LineIndex - ColIndex, Matrix, IsFirst):-
     ((House #= 1) #/\ (UpHouse #= 0) #/\ (LeftHouse #= 0) #/\ (DiagonalHouse #= 0)) #<=> IsFirst.
 
 %% verify if the cloud as the proper  size
-checkIfCloudIsCorrect(Lines, Cols,NLines - Ncols, LineIndex-ColIndex, Correct).
+checkIfCloudIsCorrect(Lines, Cols,NLines - Ncols, LineIndex-ColIndex, Correct):-
+  % it is necessary tio check the width and the height on the begin and on the end of every cloud, because the clous should be a rectangle
+
+  getCloudWidth(LineIndex-ColIndex, NLines-NCols, Lines, 0, WidthTop, End),
+  getCloudHeight(LineIndex-ColIndex, NLines-NCols, Lines, 0, HeightLeft, End),
+
+  AuxLine is LineIndex + HeightLeft,
+  getCloudWidth(AuxLine-ColIndex, NLines-NCols, Lines, 0, WidthBottom, End),
+
+  AuxCol is ColIndex + WidthTop,
+  getCloudHeight(LineIndex-AuxCol, NLines-NCols, Lines, 0, HeightRight, End),
+
+  ((WidthTop #>= 2) #/\ (HeightLeft #>= 2) #/\ (WidthTop #= WidthBottom) #/\ (HeightLeft #= HeightRight)) #<=> Correct.
+
+
+
+% returns the width  of the cloud
+
+getCloudWidth(_-_, _-_, _,_,_,1).
+getCloudWidth(LineIndex-ColIndex, NLine-NCol, Matrix,Aux, Width, End):-
+  ColIndex < NCol,
+  getBoardElem(LineIndex-ColIndex, Matrix, Color),!,
+  updateValue(Color,Aux, Updated, End),
+  AuxCol is ColIndex + 1,
+  getCloudWidth(LineIndex-AuxCol, NLine-NCol, Matrix,Updated, Width,End).
+
+getCloudHeight(_-_, _-_, _,_,_,1).
+getCloudHeight(LineIndex-ColIndex, NLine-NCol, Matrix,Aux, Width,End):-
+  LineIndex < NLine,
+  getBoardElem(LineIndex-ColIndex, Matrix, Color),!,
+  updateValue(Color,Aux, Updated, End),
+  AuxLine is LineIndex + 1,
+  getCloudHeight(LineIndex-AuxCol, NLine-NCol, Matrix,Updated, Width,End).
+
+
+updateValue(1, Aux, Updated, End):-
+    Updated is Aux + 1.
+
+updateValue(0, Aux, Aux, 1).
 
 
 %% STATISTICS %%%
