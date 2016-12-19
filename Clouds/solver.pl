@@ -10,11 +10,11 @@ solver(Line_Clues, Column_Clues, SolvedBoard):-
 
   checkLines(SolvedBoard,Line_Clues),
 
-  transpose(SolvedBoard,SolvedBoard_Inveted),
+  transpose(SolvedBoard,SolvedBoard_Inverted),
 
-  checkLines(SolvedBoard_Inveted, Column_Clues),
+  checkLines(SolvedBoard_Inverted, Column_Clues),
 
-  append(SolvedBoard,Vars),
+  append(SolvedBoard_Inverted,Vars),
 
   reset_timer,
 
@@ -31,7 +31,7 @@ solver(Line_Clues, Column_Clues, SolvedBoard):-
   % -> should have a white space between clouds
 
 %Get an element based on coords from a 2d list
-getBoardElem(1-Col,[H|_],Color):- nth1(Col,H,Color).
+getBoardElem(1-Col,[H|_],Color):- nth0(Col,H,Color).
 getBoardElem(Line-Col,[_|Hs],Color):-
         Line > 1,
         Line1 is Line - 1,
@@ -59,6 +59,47 @@ checkSum(Line, Clue):-
   Clue \= 0, !,
   sum(Line, #=,Clue).
 
+
+checkClouds(_, _, NLines - _, LineIndex-_):-
+  LineIndex > NLines.
+
+checkClouds(Lines, Cols, NLines - NCols, LineIndex-ColIndex):-
+  ColIndex = NCols,
+  AuxLine is LineIndex + 1,
+  checkClouds(Lines, Cols, NLines - NCols, AuxLine-0):-
+
+checkClouds(Lines, Cols, NLines - NCols, LineIndex-ColIndex):-
+  LineIndex < NLines,
+  ColIndex < NCols,
+
+  checkIfIsFirst(Lines, LineIndex-ColIndex,IsFirst),
+
+  checkIfCloudIsCorrect(Lines, Cols,NLines - Ncols, LineIndex-ColIndex, Correct),
+
+  AuxCol is ColIndex + 1,
+  checkClouds(Lines, Cols, NLines-NCols, LineIndex-AuxCol).
+
+
+
+%% verify if is first and also verify if there is no other cloud  withou space
+
+checkIfIsFirst(0 - 0, Matrix, IsFirst):-
+  %caso seja o primeiro
+
+checkIfIsFirst(LineIndex - 0, Matrix, IsFirst):-
+  % caso esteja na primeira coluna e na tenha mais nada por cima pintado
+
+
+checkIfIsFirst(LineIndex - ColIndex, Matrix, IsFirst):-
+    LineIndex >= 0,
+    ColIndex >= 0,
+
+    AuxLine is LineIndex - 1,
+    AuxCol is ColIndex - 1,
+
+
+%% verify if the cloud as the proper  size
+checkIfCloudIsCorrect(Lines, Cols,NLines - Ncols, LineIndex-ColIndex, Correct).
 
 
 %% STATISTICS %%%
