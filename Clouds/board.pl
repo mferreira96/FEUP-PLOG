@@ -45,24 +45,3 @@ displayBoard(N,Tamanho,Board, ClueVertical, ClueHorizontal):-
       nth0(N1, Board, List),
       displayMid(Tamanho, List,N1, ClueVertical),
       displayBoard(N1,Tamanho, Board,ClueVertical, ClueHorizontal).
-
-fillList(0,_,[]).
-fillList(N,X,[X|Xs]) :-
-      N > 0,
-      N1 is N-1,
-      fillList(N1,X,Xs).
-
-createBoard(_, 0,Board, Board).
-createBoard(Tamanho,Counter,Board, NewBoard):-
-    Counter > 0,
-    Counter1 is Counter - 1,
-    fillList(Tamanho,0,FilledList),
-    append(Board,[FilledList], Board1),
-    createBoard(Tamanho, Counter1,Board1, NewBoard).
-
-
-/*
-teste(Tamanho):-
-    createBoard(Tamanho, Tamanho, [], NewBoard),
-    displayBoard(Tamanho, Tamanho, NewBoard).
-*/

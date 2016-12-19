@@ -14,9 +14,9 @@ solver(Line_Clues, Column_Clues, SolvedBoard):-
 
   checkLines(SolvedBoard_Inverted, Column_Clues),
 
-  checkClouds(SolvedBoard_Inverted, SolvedBoard_Inverted, NLines-NCols, 0-0),
+  checkClouds(SolvedBoard, SolvedBoard, NLines-NCols, 0-0),
 
-  append(SolvedBoard_Inverted,Vars),
+  append(SolvedBoard,Vars),
 
   reset_timer,
 
@@ -34,7 +34,7 @@ solver(Line_Clues, Column_Clues, SolvedBoard):-
 
 %Get an element based on coords from a 2d list
 getBoardElem(LineIndex-ColIndex,Matrix,Color):-
-   nth0(LineIndex, Matrix, Line)
+   nth0(LineIndex, Matrix, Line),
    nth0(ColIndex,Line,Color), !.
 
 
@@ -65,17 +65,17 @@ checkClouds(_, _, NLines - _, LineIndex-_):-
 checkClouds(Lines, Cols, NLines - NCols, LineIndex-ColIndex):-
   ColIndex = NCols,
   AuxLine is LineIndex + 1,
-  checkClouds(Lines, Cols, NLines - NCols, AuxLine-0):-
+  checkClouds(Lines, Cols, NLines - NCols, AuxLine-0).
 
 checkClouds(Lines, Cols, NLines - NCols, LineIndex-ColIndex):-
   LineIndex < NLines,
   ColIndex < NCols,
 
-  checkIfIsFirst(Lines, LineIndex-ColIndex,IsFirst),
+  checkIfIsFirst(LineIndex-ColIndex,Lines,IsFirst),
 
   checkIfCloudIsCorrect(Lines, Cols,NLines - Ncols, LineIndex-ColIndex, Correct),
 
-  IsFirst #<=> Correct.
+  IsFirst #<=> Correct,
 
   AuxCol is ColIndex + 1,
   checkClouds(Lines, Cols, NLines-NCols, LineIndex-AuxCol).
@@ -120,13 +120,13 @@ checkIfCloudIsCorrect(Lines, Cols,NLines - Ncols, LineIndex-ColIndex, Correct):-
   % it is necessary tio check the width and the height on the begin and on the end of every cloud, because the clous should be a rectangle
 
   getCloudWidth(LineIndex-ColIndex, NLines-NCols, Lines, 0, WidthTop, End),
-  getCloudHeight(LineIndex-ColIndex, NLines-NCols, Lines, 0, HeightLeft, End),
+  getCloudHeight(LineIndex-ColIndex, NLines-NCols, Lines, 0, HeightLeft, End2),
 
-  AuxLine is LineIndex + HeightLeft,
-  getCloudWidth(AuxLine-ColIndex, NLines-NCols, Lines, 0, WidthBottom, End),
+  AuxLine #= LineIndex + HeightLeft,
+  getCloudWidth(AuxLine-ColIndex, NLines-NCols, Lines, 0, WidthBottom, End3),
 
-  AuxCol is ColIndex + WidthTop,
-  getCloudHeight(LineIndex-AuxCol, NLines-NCols, Lines, 0, HeightRight, End),
+  AuxCol #= ColIndex + WidthTop,
+  getCloudHeight(LineIndex-AuxCol, NLines-NCols, Lines, 0, HeightRight, End4),
 
   ((WidthTop #>= 2) #/\ (HeightLeft #>= 2) #/\ (WidthTop #= WidthBottom) #/\ (HeightLeft #= HeightRight)) #<=> Correct.
 
