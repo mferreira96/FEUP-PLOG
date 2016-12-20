@@ -73,6 +73,7 @@ checkClouds(Lines, Cols, NLines - NCols, LineIndex-ColIndex):-
   Correct #<= IsFirst,
 
   checkIfCloudIsCorrect(Lines, Cols,NLines - NCols, LineIndex-ColIndex, Correct),
+
   AuxCol is ColIndex + 1,
   checkClouds(Lines, Cols, NLines-NCols, LineIndex-AuxCol).
 
@@ -85,6 +86,14 @@ checkIfIsFirst(0 - 0, Matrix, IsFirst):-
   getBoardElem(0-0,Matrix,House),
   (House #= 1) #<=> IsFirst.
 
+checkIfIsFirst(0 - ColIndex, Matrix, IsFirst):-
+  % caso esteja na primeira coluna e na tenha mais nada por cima pintado
+  ColIndex > 0,
+
+  AuxCol is ColIndex - 1,
+  getBoardElem(0 - ColIndex,Matrix, House),
+  getBoardElem(0 - AuxCol,Matrix, LeftHouse),
+  ((House #= 1) #/\ (LeftHouse #= 0)) #<=> IsFirst.
 
 checkIfIsFirst(LineIndex - 0, Matrix, IsFirst):-
   % caso esteja na primeira coluna e na tenha mais nada por cima pintado
@@ -118,20 +127,22 @@ checkIfCloudIsCorrect(Lines, Cols,NLines - NCols, LineIndex-ColIndex, Correct):-
   getCloudWidth(LineIndex-ColIndex, NLines-NCols, Lines, 0, WidthTop, 0),
 
   getCloudHeight(LineIndex-ColIndex, NLines-NCols, Lines, 0, HeightLeft, 0),
-
-
+  write('a partir daqui tem erro' ), nl,
   AuxLine #= LineIndex + HeightLeft,
   getCloudWidth(AuxLine-ColIndex, NLines-NCols, Lines, 0, WidthBottom, 0),
+
   AuxCol #= ColIndex + WidthTop,
   getCloudHeight(LineIndex-AuxCol, NLines-NCols, Lines, 0, HeightRight, 0),
-
+  write(WidthTop) , nl,write(HeightLeft) , nl,write(WidthBottom) , nl, write(HeightRight) , nl, nl,nl,
   ((WidthTop #>= 2) #/\ (HeightLeft #>= 2) #/\ (WidthTop #= WidthBottom) #/\ (HeightLeft #= HeightRight)) #<=> Correct.
 
 
 
 % returns the width  of the cloud
 
-getCloudWidth(_-_, _-_, _,Updated,Updated,1):-!.
+getCloudWidth(_-_, _-_, _,Updated,Updated,1):-
+    %write(Updated),
+    nl,!.
 getCloudWidth(LineIndex-ColIndex, NLines-NCols, Matrix,Aux, _,_):-
   ColIndex #< NCols,
   getBoardElem(LineIndex-ColIndex, Matrix, Color),!,
@@ -150,7 +161,7 @@ getCloudHeight(LineIndex-ColIndex, NLines-NCols, Matrix,Aux, _,_):-
   getCloudHeight(AuxLine-ColIndex , NLines-NCols, Matrix,Updated, _,End).
 
 updateValue(1,Aux, Updated, 0):-
-  Updated is Aux + 1.
+  Updated is Aux + 1 .
 
 updateValue(0,Aux, Aux, 1).
 
