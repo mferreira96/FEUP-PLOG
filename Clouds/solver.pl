@@ -58,6 +58,7 @@ checkSum(Line, Clue):-
 checkClouds(_, _, NLines - _, LineIndex-_):-
   LineIndex > NLines.
 
+
 checkClouds(Lines, Cols, NLines - NCols, LineIndex-ColIndex):-
   ColIndex #= NCols,
   AuxLine is LineIndex + 1,
@@ -72,7 +73,6 @@ checkClouds(Lines, Cols, NLines - NCols, LineIndex-ColIndex):-
   Correct #<= IsFirst,
 
   checkIfCloudIsCorrect(Lines, Cols,NLines - NCols, LineIndex-ColIndex, Correct),
-
   AuxCol is ColIndex + 1,
   checkClouds(Lines, Cols, NLines-NCols, LineIndex-AuxCol).
 
@@ -119,9 +119,9 @@ checkIfCloudIsCorrect(Lines, Cols,NLines - NCols, LineIndex-ColIndex, Correct):-
 
   getCloudHeight(LineIndex-ColIndex, NLines-NCols, Lines, 0, HeightLeft, 0),
 
+
   AuxLine #= LineIndex + HeightLeft,
   getCloudWidth(AuxLine-ColIndex, NLines-NCols, Lines, 0, WidthBottom, 0),
-
   AuxCol #= ColIndex + WidthTop,
   getCloudHeight(LineIndex-AuxCol, NLines-NCols, Lines, 0, HeightRight, 0),
 
@@ -131,7 +131,7 @@ checkIfCloudIsCorrect(Lines, Cols,NLines - NCols, LineIndex-ColIndex, Correct):-
 
 % returns the width  of the cloud
 
-getCloudWidth(_-_, _-_, _,Updated,Updated,1).
+getCloudWidth(_-_, _-_, _,Updated,Updated,1):-!.
 getCloudWidth(LineIndex-ColIndex, NLines-NCols, Matrix,Aux, _,_):-
   ColIndex #< NCols,
   getBoardElem(LineIndex-ColIndex, Matrix, Color),!,
@@ -141,7 +141,7 @@ getCloudWidth(LineIndex-ColIndex, NLines-NCols, Matrix,Aux, _,_):-
 
 % returns the height  of the cloud
 
-getCloudHeight(_-_, _-_, _,Updated,Updated,1).
+getCloudHeight(_-_, _-_, _,Updated,Updated,1):-!.
 getCloudHeight(LineIndex-ColIndex, NLines-NCols, Matrix,Aux, _,_):-
   LineIndex #< NLines,
   getBoardElem(LineIndex-ColIndex, Matrix, Color),!,
@@ -149,11 +149,10 @@ getCloudHeight(LineIndex-ColIndex, NLines-NCols, Matrix,Aux, _,_):-
   AuxLine is LineIndex + 1,
   getCloudHeight(AuxLine-ColIndex , NLines-NCols, Matrix,Updated, _,End).
 
+updateValue(1,Aux, Updated, 0):-
+  Updated is Aux + 1.
 
-updateValue(1, Aux, Updated,0):-
-    Updated is Aux + 1.
-
-updateValue(0, Aux, Aux, 1).
+updateValue(0,Aux, Aux, 1).
 
 
 %% STATISTICS %%%
