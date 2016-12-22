@@ -1,7 +1,7 @@
 :- use_module(library(clpfd)).
 :- use_module(library(lists)).
 % solver of the game
-solver(Line_Clues, Column_Clues, SolvedBoard_Inverted):-
+solver(Line_Clues, Column_Clues, SolvedBoard):-
 
   length(Line_Clues,NLines),
   length(Column_Clues,NCols),
@@ -132,10 +132,9 @@ checkIfCloudIsCorrect(Lines, Cols,NLines - NCols, LineIndex-ColIndex, Correct):-
   getCloudWidth(LineIndex-ColIndex, NLines-NCols, Lines, 0, WidthTop, 0),
 
   getCloudHeight(LineIndex-ColIndex, NLines-NCols, Lines, 0, HeightLeft, 0),
-  write(WidthTop), write('-'), write(HeightLeft),nl,
-  checkRctangle(LineIndex-ColIndex,NLines-NCols, Lines, HeightLeft, WidthTop, Flag),
-
-  ((WidthTop #>= 2) #/\ (HeightLeft #>= 2) #/\ Flag) #<=> Correct.
+  %write(WidthTop), write('-'), write(HeightLeft),nl,
+  checkRctangle(LineIndex-ColIndex,NLines-NCols, Lines, HeightLeft,WidthTop,Flag),
+  ((WidthTop #>= 2) #/\ (HeightLeft #>= 2) #/\ (Flag #= 1)) #<=> Correct.
 
 
 
@@ -174,14 +173,18 @@ updateValue(1,Aux, Updated, 0):-
 updateValue(0,Aux, Aux, 1).
 
 
-checkRctangle(_-_, _-_, _, -1, 0).
-checkRctangle(_-_, _-_, _, 0, Flag).
-checkRctangle(LineIndex-ColIndex,NLines-NCols, Matrix, Size, Counter, Flag):-
-  getCloudHeight(LineIndex-ColIndex, NLines-NCols, Matrix,0, Final,0),
-  ((Size #= Final) #<=> Flag),
+checkRctangle(_-_, _-_, _ ,_ ,0, Flag).
+checkRctangle(LineIndex-ColIndex,NLines-NCols, Matrix, RealHeight,Width,Flag):-
+  getCloudHeight(LineIndex-ColIndex, NLines-NCols, Matrix,0, Height,0),
+
+  (Flag #= 0) #<= (RealHeight #\= Height),
+	(Flag #= 1) #<= (RealHeight #= Height),
+  write(LineIndex), write(' - '), write(ColIndex), nl,
+  write('Flag '), write(Flag), write(' Real '), write(RealHeight), write(' nvo '), write(Height), nl.
+
   AuxCol is ColIndex + 1,
-  Counter1 is Counter -1,
-  checkRctangle(LineIndex-AuxCol,NLines-NCols, Matrix, Size, Counter1, Flag).
+  Width1 is Width - 1,
+  checkRctangle(LineIndex-AuxCol,NLines-NCols, Matrix, RealHeight, Width1, Flag).
 
 %% STATISTICS %%%
 
