@@ -20,7 +20,7 @@ solver(Line_Clues, Column_Clues, SolvedBoard):-
 
   reset_timer,
 
-  labeling([up],Vars),
+  labeling([down],Vars),
 
   print_time,
   fd_statistics.
@@ -33,9 +33,10 @@ getElement(LineIndex-ColIndex,Matrix,Color):-
 
 %Get an element based on coords from a 2d list
 getBoardElem(LineIndex-ColIndex,Matrix,Color):-
-   getElement(LineIndex-ColIndex,Matrix,Color).
+   getElement(LineIndex-ColIndex,Matrix,Color) ,!.
 
-getBoardElem(LineIndex-ColIndex,Matrix,0).
+getBoardElem(LineIndex-ColIndex,Matrix,0):-
+    \+getElement(LineIndex-ColIndex,Matrix,_).
 
 
 % create matrix with the right size
@@ -88,7 +89,6 @@ checkClouds(Lines, Cols, NLines - NCols, LineIndex-ColIndex):-
 
 checkIfIsFirst(0 - 0, Matrix, IsFirst):-
   getBoardElem(0-0,Matrix,House),
-
   IsFirst #= House.
 
 
@@ -122,7 +122,7 @@ checkIfIsFirst(LineIndex - ColIndex, Matrix, IsFirst):-
     getBoardElem(AuxLine-ColIndex,Matrix,UpHouse),
     getBoardElem(LineIndex-AuxCol,Matrix,LeftHouse),
     getBoardElem(AuxLine-AuxCol,Matrix,DiagonalHouse),
-    %% this way i can verify if the current house is the first when i look for it fromthe left to the right...up ..down
+    %% this way i can verify if the current house is the first when i look for it from the left to the right...up ..down
     ((House #= 1) #/\ (UpHouse #= 0) #/\ (LeftHouse #= 0) #/\ (DiagonalHouse #= 0)) #<=> IsFirst.
 
 %% verify if the cloud as the proper  size
@@ -132,10 +132,10 @@ checkIfCloudIsCorrect(Lines, Cols,NLines - NCols, LineIndex-ColIndex, Correct):-
   getCloudWidth(LineIndex-ColIndex, NLines-NCols, Lines, 0, WidthTop, 0),
 
   getCloudHeight(LineIndex-ColIndex, NLines-NCols, Lines, 0, HeightLeft, 0),
-  %write(WidthTop), write('-'), write(HeightLeft),nl,
+
   checkRctangle(LineIndex-ColIndex,NLines-NCols, Lines, HeightLeft,WidthTop,Flag),
   ((WidthTop #>= 2) #/\ (HeightLeft #>= 2) #/\ (Flag #= 1)) #<=> Correct.
-
+%  write(LineIndex), write(' - '),write(ColIndex), write(' -- -- '), write('width ') , write(WidthTop), write(' - Height'), write(HeightLeft),write(' important '), write(Flag),nl.
 
 
 
@@ -144,6 +144,7 @@ checkIfCloudIsCorrect(Lines, Cols,NLines - NCols, LineIndex-ColIndex, Correct):-
 getCloudWidth(_-_, _-_, _,Updated,Updated,1):-!.
 getCloudWidth(LineIndex-ColIndex, NLines-NCols, Matrix,Aux, Final,0):-
   ColIndex #< NCols,
+  LineIndex #< Nlines,
   getBoardElem(LineIndex-ColIndex, Matrix, Color),!,
   updateValue(Color,Aux, Updated, End),
   AuxCol is ColIndex + 1,
@@ -158,6 +159,7 @@ getCloudWidth(_-ColIndex, _-NCols, _,Aux, Aux,0):-
 getCloudHeight(_-_, _-_, _,Updated,Updated,1):-!.
 getCloudHeight(LineIndex-ColIndex, NLines-NCols, Matrix,Aux, Final,0):-
   LineIndex #< NLines,
+  ColIndex #< NCols,
   getBoardElem(LineIndex-ColIndex, Matrix, Color),!,
   updateValue(Color,Aux, Updated, End),
   AuxLine is LineIndex + 1,
@@ -166,21 +168,23 @@ getCloudHeight(LineIndex-ColIndex, NLines-NCols, Matrix,Aux, Final,0):-
 getCloudHeight(LineIndex-_, NLines-_, _,Aux, Aux,0):-
   LineIndex #= NLines.
 
-
+% update value
 updateValue(1,Aux, Updated, 0):-
   Updated is Aux + 1 .
 
 updateValue(0,Aux, Aux, 1).
 
 
+% verify if the cloud is a rectangle
 checkRctangle(_-_, _-_, _ ,_ ,0, Flag).
 checkRctangle(LineIndex-ColIndex,NLines-NCols, Matrix, RealHeight,Width,Flag):-
   getCloudHeight(LineIndex-ColIndex, NLines-NCols, Matrix,0, Height,0),
 
   (Flag #= 0) #<= (RealHeight #\= Height),
 	(Flag #= 1) #<= (RealHeight #= Height),
-  write(LineIndex), write(' - '), write(ColIndex), nl,
-  write('Flag '), write(Flag), write(' Real '), write(RealHeight), write(' nvo '), write(Height), nl.
+
+%  write(LineIndex), write(' - '), write(ColIndex), nl,
+%  write('Flag '), write(Flag), write(' Real '), write(RealHeight), write(' nvo '), write(Height), nl.
 
   AuxCol is ColIndex + 1,
   Width1 is Width - 1,

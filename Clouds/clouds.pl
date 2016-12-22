@@ -1,7 +1,7 @@
 :-include('board.pl').
 :-include('solver.pl').
 
-clouds(Line_Clues, Col_Clues, Board):-
+clouds(Line_Clues, Col_Clues):-
   solver(Line_Clues,Col_Clues, Board),
   nth0(0,Board,List),
   length(List, Size),
