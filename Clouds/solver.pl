@@ -14,13 +14,13 @@ solver(Line_Clues, Column_Clues, SolvedBoard):-
 
   checkLines(SolvedBoard_Inverted, Column_Clues),
 
-  checkClouds(SolvedBoard, SolvedBoard, NLines-NCols, 0-0),
+  checkClouds(SolvedBoard, SolvedBoard_Inverted, NLines-NCols, 0-0),
 
   append(SolvedBoard,Vars),
 
   reset_timer,
 
-  labeling([down],Vars),
+  labeling([],Vars),
 
   print_time,
   fd_statistics.
@@ -134,7 +134,13 @@ checkIfCloudIsCorrect(Lines, Cols,NLines - NCols, LineIndex-ColIndex, Correct):-
   getCloudHeight(LineIndex-ColIndex, NLines-NCols, Lines, 0, HeightLeft, 0),
 
   checkRctangle(LineIndex-ColIndex,NLines-NCols, Lines, HeightLeft,WidthTop,Flag),
-  ((WidthTop #>= 2) #/\ (HeightLeft #>= 2) #/\ (Flag #= 1)) #<=> Correct.
+  checkRctangle(ColIndex-LineIndex,NCols-NLines, Cols, WidthTop,HeightLeft,F),
+
+  AuxCol is ColIndex + WidthTop,
+  AuxLine is LineIndex  + HeightLeft,
+  getBoardElem(AuxLine-AuxCol, Lines,Color),
+
+  ((WidthTop #>= 2) #/\ (HeightLeft #>= 2) #/\ (Color #= 0) #/\ (Flag #= 1)#/\ (F #= 1)) #<=> Correct.
 %  write(LineIndex), write(' - '),write(ColIndex), write(' -- -- '), write('width ') , write(WidthTop), write(' - Height'), write(HeightLeft),write(' important '), write(Flag),nl.
 
 
@@ -144,13 +150,13 @@ checkIfCloudIsCorrect(Lines, Cols,NLines - NCols, LineIndex-ColIndex, Correct):-
 getCloudWidth(_-_, _-_, _,Updated,Updated,1):-!.
 getCloudWidth(LineIndex-ColIndex, NLines-NCols, Matrix,Aux, Final,0):-
   ColIndex #< NCols,
-  LineIndex #< Nlines,
+  LineIndex #< NLines,
   getBoardElem(LineIndex-ColIndex, Matrix, Color),!,
   updateValue(Color,Aux, Updated, End),
   AuxCol is ColIndex + 1,
   getCloudWidth(LineIndex-AuxCol, NLines-NCols, Matrix,Updated, Final,End).
 
-getCloudWidth(_-ColIndex, _-NCols, _,Aux, Aux,0):-
+getCloudWidth(_-ColIndex, _-NCols, _,Aux, Aux,_):-
   ColIndex #= NCols.
 
 
@@ -165,7 +171,7 @@ getCloudHeight(LineIndex-ColIndex, NLines-NCols, Matrix,Aux, Final,0):-
   AuxLine is LineIndex + 1,
   getCloudHeight(AuxLine-ColIndex , NLines-NCols, Matrix,Updated, Final,End).
 
-getCloudHeight(LineIndex-_, NLines-_, _,Aux, Aux,0):-
+getCloudHeight(LineIndex-_, NLines-_, _,Aux, Aux,_):-
   LineIndex #= NLines.
 
 % update value
@@ -176,19 +182,21 @@ updateValue(0,Aux, Aux, 1).
 
 
 % verify if the cloud is a rectangle
-checkRctangle(_-_, _-_, _ ,_ ,0, Flag).
-checkRctangle(LineIndex-ColIndex,NLines-NCols, Matrix, RealHeight,Width,Flag):-
+checkRctangle(_-_, _-_, _ ,_ ,0, _).
+checkRctangle(LineIndex-ColIndex,NLines-NCols, Matrix, Real,Width,Flag):-
+  LineIndex #< NLines,
+  ColIndex #< NCols,
   getCloudHeight(LineIndex-ColIndex, NLines-NCols, Matrix,0, Height,0),
 
-  (Flag #= 0) #<= (RealHeight #\= Height),
-	(Flag #= 1) #<= (RealHeight #= Height),
+  (Flag #= 0) #<= (Real #\= Height),
+	(Flag #= 1) #<= (Real #= Height),
 
 %  write(LineIndex), write(' - '), write(ColIndex), nl,
 %  write('Flag '), write(Flag), write(' Real '), write(RealHeight), write(' nvo '), write(Height), nl.
 
   AuxCol is ColIndex + 1,
   Width1 is Width - 1,
-  checkRctangle(LineIndex-AuxCol,NLines-NCols, Matrix, RealHeight, Width1, Flag).
+  checkRctangle(LineIndex-AuxCol,NLines-NCols, Matrix, Real, Width1, Flag).
 
 %% STATISTICS %%%
 
