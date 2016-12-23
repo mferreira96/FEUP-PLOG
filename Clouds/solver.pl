@@ -20,7 +20,7 @@ solver(Line_Clues, Column_Clues, SolvedBoard):-
 
   reset_timer,
 
-  labeling([],Vars),
+  labeling([down],Vars),
 
   print_time,
   fd_statistics.
@@ -202,5 +202,6 @@ checkRctangle(LineIndex-ColIndex,NLines-NCols, Matrix, Real,Width,Flag):-
 
 reset_timer :- statistics(walltime,_).
 print_time :-
-  statistics(walltime, [_, ElapsedTime | _]),
-	format('An answer has been found!~nElapsed time: ~5d seconds', ElapsedTime), nl.
+	statistics(walltime,[_,T]),
+	TS is ((T//10)*10)/1000,
+	nl, write('Time: '), write(TS), write('s'), nl, nl.
